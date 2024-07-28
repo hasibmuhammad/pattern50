@@ -17,7 +17,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
         isOpen ? "translate-x-0" : "translate-x-full"
       } transition-transform duration-300 ease-in-out`}
     >
-      <div className="fixed right-0 top-0 bottom-0 max-w-lg rounded-lg overflow-hidden shadow-lg overflow-y-auto">
+      <div className="fixed right-0 top-0 bottom-0 max-w-lg rounded-lg overflow-hidden shadow-xl overflow-y-auto">
         <div>
           <div className="bg-slate-50 p-5 flex justify-between">
             <div>
