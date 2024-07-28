@@ -5,16 +5,44 @@ import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
 import "react-datepicker/dist/react-datepicker.css";
+import { useQuery } from "@tanstack/react-query";
+import axiosIntance from "../../../lib/axiosIntance";
+import { AxiosResponse } from "axios";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
 };
 
+type ZipInfo = {
+  city: string;
+  state: string;
+  country: string;
+};
+
 const AddCompany = ({ isOpen, onClose }: Props) => {
   const [phone, setPhone] = useState("");
   const [startMonth, setStartMonth] = useState<any>();
   const [endMonth, setEndMonth] = useState<any>("");
+  const [zip, setZip] = useState("");
+
+  const {
+    data: zipInfo,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: ["fetchZipInfo", zip],
+    queryFn: async () => {
+      if (zip && zip.length === 5) {
+        const response: AxiosResponse<ZipInfo> = await axiosIntance.get(
+          `/geo/zip/${zip}`
+        );
+
+        return response.data;
+      }
+    },
+  });
+
   return (
     <div
       className={`fixed inset-0 z-50 transform ${
@@ -96,21 +124,33 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                           className="w-1/2 border outline-none rounded-md px-3 py-2"
                           type="text"
                           placeholder="Zip code"
+                          onChange={(e) => setZip(e.target.value)}
                         />
 
                         <select className="w-1/2 border outline-none rounded-md px-3 py-2">
-                          <option value="">City</option>
+                          <option
+                            className="text-slate-300"
+                            value={zipInfo?.city}
+                          >
+                            {isPending ? "Loading..." : zipInfo?.city}
+                          </option>
                         </select>
                       </div>
                       <div className="flex gap-2">
                         <select className="w-1/2 border outline-none rounded-md px-3 py-2">
-                          <option className="text-slate-300" value="">
-                            State
+                          <option
+                            className="text-slate-300"
+                            value={zipInfo?.state}
+                          >
+                            {isPending ? "Loading..." : zipInfo?.state}
                           </option>
                         </select>
                         <select className="w-1/2 border outline-none rounded-md px-3 py-2">
-                          <option className="text-slate-300" value="">
-                            Country
+                          <option
+                            className="text-slate-300"
+                            value={zipInfo?.country}
+                          >
+                            {isPending ? "Loading..." : zipInfo?.country}
                           </option>
                         </select>
                       </div>
