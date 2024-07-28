@@ -22,3 +22,8 @@
   box-shadow: none !important;
   border: none !important;
 }
+
+/* datepicker custom css */
+.react-datepicker__input-container .react-datepicker__calendar-icon {
+  padding-top: 0.7rem !important;
+}

@@ -58,7 +58,7 @@ const Companies = () => {
                     {...register("term", {
                       required: "Please write something to search...",
                     })}
-                    className="border outline-none w-full px-10 py-2"
+                    className="border outline-none w-full px-10 py-2 rounded-md"
                     placeholder="Search by name, phone, email, location"
                     defaultValue={searchTerm}
                   />
@@ -80,7 +80,7 @@ const Companies = () => {
             </div>
           </form>
         </div>
-        {isSubmitting ? (
+        {/* {isSubmitting ? (
           <div>
             <Loader />
           </div>
@@ -88,7 +88,7 @@ const Companies = () => {
           <div className="relative pt-5">
             <CompanyList searchTerm={searchTerm} />
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Add company drawer */}

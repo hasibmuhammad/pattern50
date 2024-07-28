@@ -1,8 +1,10 @@
 "use client";
-import { X } from "@phosphor-icons/react";
+import { CalendarBlank, X } from "@phosphor-icons/react";
 import { useState } from "react";
+import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 type Props = {
   isOpen: boolean;
@@ -11,6 +13,8 @@ type Props = {
 
 const AddCompany = ({ isOpen, onClose }: Props) => {
   const [phone, setPhone] = useState("");
+  const [startMonth, setStartMonth] = useState<any>();
+  const [endMonth, setEndMonth] = useState<any>("");
   return (
     <div
       className={`fixed inset-0 z-50 transform ${
@@ -29,11 +33,11 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
             <X onClick={onClose} size={28} className="cursor-pointer" />
           </div>
           <div className="bg-white">
-            <h2 className="px-5 pt-10 text-xl font-bold">
+            <h2 className="px-10 pt-10 text-xl font-bold">
               Company Information
             </h2>
             <form className="mt-4">
-              <div className="px-5">
+              <div className="px-10">
                 <div className="space-y-8">
                   <div className="flex gap-4 items-center justify-between">
                     <label className="w-[200px] text-nowrap">
@@ -78,7 +82,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                     />
                   </div>
                   <div className="flex justify-between">
-                    <label className="w-[155px] text-nowrap">
+                    <label className="w-[175px] text-nowrap">
                       Address <span className="text-red-500">*</span>
                     </label>
                     <div className="space-y-2">
@@ -136,25 +140,39 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       <label className="w-[200px] text-nowrap">
                         Start Month <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        className="w-full border outline-none rounded-md px-3 py-2"
-                        type="date"
-                        placeholder="Pick a month"
-                      />
+                      <div className="w-full">
+                        <DatePicker
+                          className="w-full border outline-none rounded-md px-3 py-2"
+                          placeholderText="Pick a month"
+                          showIcon
+                          icon={<CalendarBlank className="text-slate-500" />}
+                          dateFormat={"MMMM yyyy"}
+                          showMonthYearPicker
+                          onChange={(month) => setStartMonth(month)}
+                          selected={startMonth}
+                        />
+                      </div>
                     </div>
                     <div className="flex gap-4 items-center justify-between">
                       <label className="w-[200px] text-nowrap">End Month</label>
-                      <input
-                        className="w-full border outline-none rounded-md px-3 py-2"
-                        type="date"
-                        placeholder="Pick a month"
-                      />
+                      <div className="w-full">
+                        <DatePicker
+                          className="w-full border outline-none rounded-md px-3 py-2"
+                          placeholderText="Pick a month"
+                          showIcon
+                          icon={<CalendarBlank className="text-slate-500" />}
+                          dateFormat={"MMMM yyyy"}
+                          showMonthYearPicker
+                          onChange={(month) => setEndMonth(month)}
+                          selected={endMonth}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="py-5 pr-5 bg-slate-50 flex gap-5 justify-end">
+              <div className="py-5 pr-10 bg-slate-50 flex gap-5 justify-end">
                 <button
                   onClick={onClose}
                   type="button"

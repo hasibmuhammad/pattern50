@@ -22,11 +22,11 @@ export default function RootLayout({
       <body className={inter.className}>
         {/* <Navbar /> */}
         <QueryClientWrapperProvider>
-          <div className="max-w-full mx-auto flex gap-10">
-            <div>
+          <div className="min-h-screen flex">
+            <aside className="fixed top-0 left-0 w-64 h-full">
               <Sidebar />
-            </div>
-            <div className="w-full mt-10">{children}</div>
+            </aside>
+            <div className="ml-64 flex-1 p-4 overflow-y-auto">{children}</div>
           </div>
         </QueryClientWrapperProvider>
       </body>

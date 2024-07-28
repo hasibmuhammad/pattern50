@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="flex justify-center min-h-screen">
+      <div className="flex min-h-screen">
         <div className="flex justify-between gap-10">
           <div>Welcome to dashboard</div>
         </div>
