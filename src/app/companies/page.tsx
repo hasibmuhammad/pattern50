@@ -5,6 +5,7 @@ import { MagnifyingGlass } from "@phosphor-icons/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
+import AddCompany from "./AddCompany";
 
 type SearchForm = {
   term: string;
@@ -38,29 +39,37 @@ const Companies = () => {
   };
 
   return (
-    <div className="w-[78vw]">
-      <div className="space-y-2">
+    <div className="relative w-[78vw]">
+      {/* <div className="space-y-2">
         <h4 className="font-bold text-blue-500">Companies</h4>
         <h1 className="text-3xl font-bold">All Companies</h1>
         <div>
           <form onSubmit={handleSubmit(search)}>
-            <div className="flex gap-2">
-              <div className="w-full relative flex justify-center items-center">
-                <MagnifyingGlass className="absolute left-2" />
-                <input
-                  {...register("term", {
-                    required: "Please write something to search...",
-                  })}
-                  className="border outline-none w-full px-10 py-2"
-                  placeholder="Search by name, phone, email, location"
-                  defaultValue={searchTerm}
-                />
+            <div className="flex items-center gap-5">
+              <div className="w-full flex gap-2">
+                <div className="w-full relative flex justify-center items-center">
+                  <MagnifyingGlass className="absolute left-2" />
+                  <input
+                    {...register("term", {
+                      required: "Please write something to search...",
+                    })}
+                    className="border outline-none w-full px-10 py-2"
+                    placeholder="Search by name, phone, email, location"
+                    defaultValue={searchTerm}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-slate-100 font-normal rounded-md px-4"
+                >
+                  Search
+                </button>
               </div>
               <button
-                type="submit"
-                className="bg-slate-100 font-normal rounded-md px-4"
+                type="button"
+                className="text-nowrap bg-blue-500 px-4 py-2 rounded-md text-white"
               >
-                Search
+                Add Company
               </button>
             </div>
           </form>
@@ -74,7 +83,10 @@ const Companies = () => {
             <CompanyList searchTerm={searchTerm} />
           </div>
         )}
-      </div>
+      </div> */}
+
+      {/* Add company drawer */}
+      <AddCompany />
     </div>
   );
 };
