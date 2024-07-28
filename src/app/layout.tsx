@@ -26,7 +26,7 @@ export default function RootLayout({
             <div>
               <Sidebar />
             </div>
-            <div className="mt-10">{children}</div>
+            <div className="w-full mt-10">{children}</div>
           </div>
         </QueryClientWrapperProvider>
       </body>

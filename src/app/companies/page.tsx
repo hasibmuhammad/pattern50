@@ -38,9 +38,14 @@ const Companies = () => {
     router.push(`/companies?page=1&query=${data.term}`);
   };
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const handleDrawerOpen = () => setIsDrawerOpen(true);
+  const handleDrawerClose = () => setIsDrawerOpen(false);
+
   return (
     <div className="relative w-[78vw]">
-      {/* <div className="space-y-2">
+      <div className="space-y-2">
         <h4 className="font-bold text-blue-500">Companies</h4>
         <h1 className="text-3xl font-bold">All Companies</h1>
         <div>
@@ -68,6 +73,7 @@ const Companies = () => {
               <button
                 type="button"
                 className="text-nowrap bg-blue-500 px-4 py-2 rounded-md text-white"
+                onClick={handleDrawerOpen}
               >
                 Add Company
               </button>
@@ -83,10 +89,10 @@ const Companies = () => {
             <CompanyList searchTerm={searchTerm} />
           </div>
         )}
-      </div> */}
+      </div>
 
       {/* Add company drawer */}
-      <AddCompany />
+      <AddCompany isOpen={isDrawerOpen} onClose={handleDrawerClose} />
     </div>
   );
 };
