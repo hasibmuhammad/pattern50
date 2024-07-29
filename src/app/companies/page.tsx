@@ -80,7 +80,7 @@ const Companies = () => {
             </div>
           </form>
         </div>
-        {/* {isSubmitting ? (
+        {isSubmitting ? (
           <div>
             <Loader />
           </div>
@@ -88,7 +88,7 @@ const Companies = () => {
           <div className="relative pt-5">
             <CompanyList searchTerm={searchTerm} />
           </div>
-        )} */}
+        )}
       </div>
 
       {/* Add company drawer */}

@@ -1,6 +1,6 @@
 "use client";
 import { CalendarBlank, X } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useQuery } from "@tanstack/react-query";
 import axiosIntance from "../../../lib/axiosIntance";
 import { AxiosResponse } from "axios";
+import { useForm } from "react-hook-form";
 
 type Props = {
   isOpen: boolean;
@@ -20,28 +21,63 @@ type ZipInfo = {
   country: string;
 };
 
+type Company = {
+  companyName: string;
+  email: string;
+  phoneNumber: string;
+  ein: number;
+  address: string;
+  zipCode: number;
+  city: string;
+  state: string;
+  country: string;
+};
+
 const AddCompany = ({ isOpen, onClose }: Props) => {
-  const [phone, setPhone] = useState("");
   const [startMonth, setStartMonth] = useState<any>();
   const [endMonth, setEndMonth] = useState<any>("");
   const [zip, setZip] = useState("");
 
   const {
     data: zipInfo,
-    isPending,
-    refetch,
+    error,
+    isFetching,
   } = useQuery({
     queryKey: ["fetchZipInfo", zip],
     queryFn: async () => {
       if (zip && zip.length === 5) {
-        const response: AxiosResponse<ZipInfo> = await axiosIntance.get(
-          `/geo/zip/${zip}`
-        );
-
-        return response.data;
+        try {
+          const response: AxiosResponse<ZipInfo> = await axiosIntance.get(
+            `/geo/zip/${zip}`
+          );
+          return response.data;
+        } catch (error) {
+          console.error("Error fetching zip info:", error);
+          throw new Error("Error fetching zip info");
+        }
       }
+      return null;
     },
+    enabled: zip.length === 5,
+    refetchOnWindowFocus: false,
   });
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Company>();
+
+  useEffect(() => {
+    if (zipInfo) {
+      setValue("city", zipInfo.city);
+      setValue("state", zipInfo.state);
+      setValue("country", zipInfo.country);
+    }
+  }, [zipInfo, setValue]);
+
+  const createCompany = (data: Company) => console.log(data);
 
   return (
     <div
@@ -64,7 +100,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
             <h2 className="px-10 pt-10 text-xl font-bold">
               Company Information
             </h2>
-            <form className="mt-4">
+            <form onSubmit={handleSubmit(createCompany)} className="mt-4">
               <div className="px-10">
                 <div className="space-y-8">
                   <div className="flex gap-4 items-center justify-between">
@@ -72,6 +108,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       Company Name <span className="text-red-500">*</span>
                     </label>
                     <input
+                      {...register("companyName")}
                       className="w-full border outline-none rounded-md px-3 py-2"
                       type="text"
                       placeholder="Company Name"
@@ -82,6 +119,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
+                      {...register("email")}
                       className="w-full border outline-none rounded-md px-3 py-2"
                       type="email"
                       placeholder="Email address"
@@ -93,8 +131,8 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                     </label>
 
                     <PhoneInput
-                      value={phone}
-                      onChange={(phone) => setPhone(phone)}
+                      {...register("phoneNumber")}
+                      onChange={(phone) => setValue("phoneNumber", phone)}
                       country={"us"}
                       placeholder={"000 000 0000"}
                     />
@@ -104,6 +142,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       EIN <span className="text-red-500">*</span>
                     </label>
                     <input
+                      {...register("ein")}
                       className="w-full border outline-none rounded-md px-3 py-2"
                       type="text"
                       placeholder="EIN"
@@ -115,42 +154,53 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                     </label>
                     <div className="space-y-2">
                       <input
+                        {...register("address")}
                         className="w-full border outline-none rounded-md px-3 py-2"
                         type="text"
                         placeholder="Address line"
                       />
                       <div className="flex gap-2">
                         <input
+                          {...register("zipCode")}
                           className="w-1/2 border outline-none rounded-md px-3 py-2"
                           type="text"
                           placeholder="Zip code"
                           onChange={(e) => setZip(e.target.value)}
                         />
 
-                        <select className="w-1/2 border outline-none rounded-md px-3 py-2">
+                        <select
+                          {...register("city")}
+                          className="w-1/2 border outline-none rounded-md px-3 py-2"
+                        >
                           <option
                             className="text-slate-300"
                             value={zipInfo?.city}
                           >
-                            {isPending ? "Loading..." : zipInfo?.city}
+                            {zipInfo?.city}
                           </option>
                         </select>
                       </div>
                       <div className="flex gap-2">
-                        <select className="w-1/2 border outline-none rounded-md px-3 py-2">
+                        <select
+                          {...register("state")}
+                          className="w-1/2 border outline-none rounded-md px-3 py-2"
+                        >
                           <option
                             className="text-slate-300"
                             value={zipInfo?.state}
                           >
-                            {isPending ? "Loading..." : zipInfo?.state}
+                            {zipInfo?.state}
                           </option>
                         </select>
-                        <select className="w-1/2 border outline-none rounded-md px-3 py-2">
+                        <select
+                          {...register("country")}
+                          className="w-1/2 border outline-none rounded-md px-3 py-2"
+                        >
                           <option
                             className="text-slate-300"
                             value={zipInfo?.country}
                           >
-                            {isPending ? "Loading..." : zipInfo?.country}
+                            {zipInfo?.country}
                           </option>
                         </select>
                       </div>

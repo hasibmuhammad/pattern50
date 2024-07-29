@@ -50,6 +50,7 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   const { data, isFetching, error, refetch } = useQuery({
     queryKey: ["companies", currentPage, searchTerm],
     queryFn: () => fetchCompanies(currentPage, searchTerm),
+    refetchOnWindowFocus: false,
   });
 
   const companies = data?.data || [];
