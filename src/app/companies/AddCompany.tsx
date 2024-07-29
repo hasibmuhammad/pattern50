@@ -1,5 +1,5 @@
 "use client";
-import { CalendarBlank, X } from "@phosphor-icons/react";
+import { CalendarBlank, Warning, X } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
@@ -8,7 +8,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useQuery } from "@tanstack/react-query";
 import axiosIntance from "../../../lib/axiosIntance";
 import { AxiosResponse } from "axios";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
 
 type Props = {
   isOpen: boolean;
@@ -31,10 +32,12 @@ type Company = {
   city: string;
   state: string;
   country: string;
+  masterEmail: string;
+  startMonth: Date;
+  endMonth: Date;
 };
 
 const AddCompany = ({ isOpen, onClose }: Props) => {
-  const [startMonth, setStartMonth] = useState<any>();
   const [endMonth, setEndMonth] = useState<any>("");
   const [zip, setZip] = useState("");
 
@@ -66,6 +69,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
     register,
     setValue,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<Company>();
 
@@ -78,6 +82,8 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
   }, [zipInfo, setValue]);
 
   const createCompany = (data: Company) => console.log(data);
+
+  console.log(errors);
 
   return (
     <div
@@ -103,106 +109,272 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
             <form onSubmit={handleSubmit(createCompany)} className="mt-4">
               <div className="px-10">
                 <div className="space-y-8">
-                  <div className="flex gap-4 items-center justify-between">
+                  <div className={`flex gap-4 items-center justify-between`}>
                     <label className="w-[200px] text-nowrap">
                       Company Name <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      {...register("companyName")}
-                      className="w-full border outline-none rounded-md px-3 py-2"
-                      type="text"
-                      placeholder="Company Name"
-                    />
+                    <div className="w-full">
+                      <input
+                        {...register("companyName", {
+                          required: "Company name is required!",
+                        })}
+                        className={`w-full border ${
+                          errors && errors.companyName && "border-red-500"
+                        } outline-none rounded-md px-3 py-2`}
+                        type="text"
+                        placeholder="Company Name"
+                      />
+                      {errors && errors?.companyName?.type === "required" && (
+                        <p className="flex items-center gap-1 text-red-600">
+                          <Warning /> {errors.companyName.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-4 items-center justify-between">
                     <label className="w-[200px] text-nowrap">
                       Email Address <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      {...register("email")}
-                      className="w-full border outline-none rounded-md px-3 py-2"
-                      type="email"
-                      placeholder="Email address"
-                    />
+                    <div className="w-full">
+                      <input
+                        {...register("email", {
+                          required: "Email address is required!",
+                        })}
+                        className={`w-full border ${
+                          errors && errors.email && "border-red-500"
+                        } outline-none rounded-md px-3 py-2`}
+                        type="email"
+                        placeholder="Email address"
+                      />
+                      {errors && errors?.email?.type === "required" && (
+                        <p className="flex items-center gap-1 text-red-600">
+                          <Warning /> {errors.email.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-4 items-center justify-between">
                     <label className="w-[200px] text-nowrap">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
 
-                    <PhoneInput
-                      {...register("phoneNumber")}
-                      onChange={(phone) => setValue("phoneNumber", phone)}
-                      country={"us"}
-                      placeholder={"000 000 0000"}
-                    />
+                    <div className="w-full">
+                      <PhoneInput
+                        {...register("phoneNumber", {
+                          required: "Phone number is required!",
+                          minLength: 11,
+                        })}
+                        onChange={(phone) => setValue("phoneNumber", phone)}
+                        country={"us"}
+                        placeholder={"000 000 0000"}
+                        inputProps={{
+                          className: `w-full border ${
+                            errors && errors.phoneNumber && "border-red-500"
+                          } rounded-md outline-none px-3 py-2 pl-14`,
+                        }}
+                      />
+
+                      {errors && errors?.phoneNumber?.type === "required" && (
+                        <p className="flex items-center gap-1 text-red-600">
+                          <Warning /> {errors.phoneNumber.message}
+                        </p>
+                      )}
+                      {errors && errors?.phoneNumber?.type === "minLength" && (
+                        <p className="flex items-center gap-1 text-red-600">
+                          <Warning /> Number Must be 11 digits!
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-4 items-center justify-between">
                     <label className="w-[200px] text-nowrap">
                       EIN <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      {...register("ein")}
-                      className="w-full border outline-none rounded-md px-3 py-2"
-                      type="text"
-                      placeholder="EIN"
-                    />
+                    <div className="w-full">
+                      <input
+                        {...register("ein", { required: "EIN is required!" })}
+                        className="w-full border outline-none rounded-md px-3 py-2"
+                        type="text"
+                        placeholder="EIN"
+                      />
+                      {errors && errors?.ein?.type === "required" && (
+                        <p className="flex items-center gap-1 text-red-600">
+                          <Warning /> {errors.ein.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex justify-between">
-                    <label className="w-[175px] text-nowrap">
+                    <label
+                      className={`${
+                        zipInfo ? "w-[220px]" : "w-[180px]"
+                      } text-nowrap`}
+                    >
                       Address <span className="text-red-500">*</span>
                     </label>
                     <div className="space-y-2">
                       <input
-                        {...register("address")}
-                        className="w-full border outline-none rounded-md px-3 py-2"
+                        {...register("address", {
+                          required: "Address is required!",
+                        })}
+                        className={`w-full border ${
+                          errors && errors.address && "border-red-500"
+                        } outline-none rounded-md px-3 py-2`}
                         type="text"
                         placeholder="Address line"
                       />
-                      <div className="flex gap-2">
-                        <input
-                          {...register("zipCode")}
-                          className="w-1/2 border outline-none rounded-md px-3 py-2"
-                          type="text"
-                          placeholder="Zip code"
-                          onChange={(e) => setZip(e.target.value)}
-                        />
+                      <div className="space-y-2 w-full">
+                        <div className="flex gap-2">
+                          <input
+                            {...register("zipCode", {
+                              required: "Zipcode is required!",
+                              minLength: 5,
+                            })}
+                            className={`w-1/2 border ${
+                              errors && errors.zipCode && "border-red-500"
+                            } outline-none rounded-md px-3 py-2`}
+                            type="text"
+                            placeholder="Zip code"
+                            onChange={(e) => setZip(e.target.value)}
+                          />
 
-                        <select
-                          {...register("city")}
-                          className="w-1/2 border outline-none rounded-md px-3 py-2"
-                        >
-                          <option
-                            className="text-slate-300"
-                            value={zipInfo?.city}
-                          >
-                            {zipInfo?.city}
-                          </option>
-                        </select>
-                      </div>
-                      <div className="flex gap-2">
-                        <select
-                          {...register("state")}
-                          className="w-1/2 border outline-none rounded-md px-3 py-2"
-                        >
-                          <option
-                            className="text-slate-300"
-                            value={zipInfo?.state}
-                          >
-                            {zipInfo?.state}
-                          </option>
-                        </select>
-                        <select
-                          {...register("country")}
-                          className="w-1/2 border outline-none rounded-md px-3 py-2"
-                        >
-                          <option
-                            className="text-slate-300"
-                            value={zipInfo?.country}
-                          >
-                            {zipInfo?.country}
-                          </option>
-                        </select>
+                          <Controller
+                            {...register("city", {
+                              required: "City is required!",
+                            })}
+                            control={control}
+                            render={() => (
+                              <Select
+                                className={`w-1/2 ${
+                                  errors &&
+                                  errors.city &&
+                                  "border rounded-md overflow-hidden border-red-500"
+                                }`}
+                                placeholder="City"
+                                options={
+                                  zipInfo
+                                    ? [
+                                        {
+                                          value: zipInfo.city,
+                                          label: zipInfo.city,
+                                        },
+                                      ]
+                                    : []
+                                }
+                                value={
+                                  zipInfo
+                                    ? {
+                                        value: zipInfo.city,
+                                        label: zipInfo.city,
+                                      }
+                                    : null
+                                }
+                              />
+                            )}
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Controller
+                            {...register("state", {
+                              required: "State is required!",
+                            })}
+                            control={control}
+                            render={() => (
+                              <Select
+                                className={`w-1/2 ${
+                                  errors &&
+                                  errors.state &&
+                                  "border rounded-md overflow-hidden border-red-500"
+                                }`}
+                                placeholder="State"
+                                options={
+                                  zipInfo
+                                    ? [
+                                        {
+                                          value: zipInfo.state,
+                                          label: zipInfo.state,
+                                        },
+                                      ]
+                                    : []
+                                }
+                                value={
+                                  zipInfo
+                                    ? {
+                                        value: zipInfo.state,
+                                        label: zipInfo.state,
+                                      }
+                                    : null
+                                }
+                              />
+                            )}
+                          />
+
+                          <Controller
+                            {...register("country", {
+                              required: "Country is required!",
+                            })}
+                            control={control}
+                            render={() => (
+                              <Select
+                                className={`w-1/2 ${
+                                  errors &&
+                                  errors.country &&
+                                  "border rounded-md overflow-hidden border-red-500"
+                                }`}
+                                placeholder="Country"
+                                options={
+                                  zipInfo
+                                    ? [
+                                        {
+                                          value: zipInfo.country,
+                                          label: zipInfo.country,
+                                        },
+                                      ]
+                                    : []
+                                }
+                                value={
+                                  zipInfo
+                                    ? {
+                                        value: zipInfo.country,
+                                        label: zipInfo.country,
+                                      }
+                                    : null
+                                }
+                              />
+                            )}
+                          />
+                        </div>
+
+                        {errors && errors?.address?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.address.message}
+                          </p>
+                        )}
+                        {errors && errors?.zipCode?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.zipCode.message}
+                          </p>
+                        )}
+                        {errors && errors?.zipCode?.type === "minLength" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> Zipcode must be 5 digits.
+                          </p>
+                        )}
+                        {errors && errors?.city?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.city.message}
+                          </p>
+                        )}
+                        {errors && errors?.state?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.state.message}
+                          </p>
+                        )}
+                        {errors && errors?.country?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.country.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -215,11 +387,23 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       <label className="w-[200px] text-nowrap">
                         Email Address <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        className="w-full border outline-none rounded-md px-3 py-2"
-                        type="email"
-                        placeholder="Email address"
-                      />
+                      <div className="w-full">
+                        <input
+                          {...register("masterEmail", {
+                            required: "Master email is required!",
+                          })}
+                          className={`w-full border ${
+                            errors && errors.masterEmail && "border-red-500"
+                          } outline-none rounded-md px-3 py-2`}
+                          type="email"
+                          placeholder="Email address"
+                        />
+                        {errors && errors?.masterEmail?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.masterEmail.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -231,30 +415,64 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                         Start Month <span className="text-red-500">*</span>
                       </label>
                       <div className="w-full">
-                        <DatePicker
-                          className="w-full border outline-none rounded-md px-3 py-2"
-                          placeholderText="Pick a month"
-                          showIcon
-                          icon={<CalendarBlank className="text-slate-500" />}
-                          dateFormat={"MMMM yyyy"}
-                          showMonthYearPicker
-                          onChange={(month) => setStartMonth(month)}
-                          selected={startMonth}
+                        <Controller
+                          name="startMonth"
+                          control={control}
+                          rules={{
+                            required: "Billing Start month is required!",
+                          }}
+                          render={({
+                            field: { onChange, onBlur, value, ref },
+                          }) => (
+                            <DatePicker
+                              className={`w-full border ${
+                                errors && errors.startMonth && "border-red-500"
+                              } outline-none rounded-md px-3 py-2`}
+                              placeholderText="Pick a month"
+                              showIcon
+                              icon={
+                                <CalendarBlank className="text-slate-500" />
+                              }
+                              dateFormat="MMMM yyyy"
+                              showMonthYearPicker
+                              onChange={(date) => onChange(date)}
+                              selected={value}
+                              onBlur={onBlur}
+                              ref={ref}
+                            />
+                          )}
                         />
+                        {errors && errors?.startMonth?.type === "required" && (
+                          <p className="flex items-center gap-1 text-red-600">
+                            <Warning /> {errors.startMonth.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-4 items-center justify-between">
                       <label className="w-[200px] text-nowrap">End Month</label>
                       <div className="w-full">
-                        <DatePicker
-                          className="w-full border outline-none rounded-md px-3 py-2"
-                          placeholderText="Pick a month"
-                          showIcon
-                          icon={<CalendarBlank className="text-slate-500" />}
-                          dateFormat={"MMMM yyyy"}
-                          showMonthYearPicker
-                          onChange={(month) => setEndMonth(month)}
-                          selected={endMonth}
+                        <Controller
+                          name="endMonth"
+                          control={control}
+                          render={({
+                            field: { onChange, onBlur, value, ref },
+                          }) => (
+                            <DatePicker
+                              className="w-full border outline-none rounded-md px-3 py-2"
+                              placeholderText="Pick a month"
+                              showIcon
+                              icon={
+                                <CalendarBlank className="text-slate-500" />
+                              }
+                              dateFormat="MMMM yyyy"
+                              showMonthYearPicker
+                              onChange={(date) => onChange(date)}
+                              selected={value}
+                              onBlur={onBlur}
+                              ref={ref}
+                            />
+                          )}
                         />
                       </div>
                     </div>
