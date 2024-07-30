@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const axiosIntance = axios.create({
+const axiosInstance = axios.create({
   baseURL: "https://beta-api.pattern50.com",
 });
 
-axiosIntance.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem("access-token");
 
@@ -26,7 +26,7 @@ axiosIntance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axiosIntance.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const accessToken = localStorage.getItem("access-token");
@@ -34,7 +34,7 @@ axiosIntance.interceptors.response.use(
 
     if (!accessToken && refreshToken) {
       // regnerate the access token
-      const response = await axiosIntance.post("/auth/sign-in", {
+      const response = await axiosInstance.post("/auth/sign-in", {
         refreshToken: refreshToken,
         grantType: "refreshToken",
       });
@@ -60,4 +60,4 @@ axiosIntance.interceptors.response.use(
   }
 );
 
-export default axiosIntance;
+export default axiosInstance;

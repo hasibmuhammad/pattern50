@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { CompanyInfoType } from "@/types/types";
-import axiosInstance from "../../../lib/axiosIntance";
+import axiosInstance from "../../../lib/axiosInstance";
 
 const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);

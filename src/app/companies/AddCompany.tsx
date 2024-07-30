@@ -5,11 +5,12 @@ import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { useQuery } from "@tanstack/react-query";
-import axiosIntance from "../../../lib/axiosIntance";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axiosInstance from "../../../lib/axiosInstance";
 import { AxiosResponse } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
+import { format } from "date-fns";
 
 type Props = {
   isOpen: boolean;
@@ -23,22 +24,23 @@ type ZipInfo = {
 };
 
 type Company = {
-  companyName: string;
+  name: string;
   email: string;
-  phoneNumber: string;
+  phone: string;
   ein: number;
-  address: string;
+  addressLine: string;
   zipCode: number;
   city: string;
   state: string;
   country: string;
   masterEmail: string;
-  startMonth: Date;
-  endMonth: Date;
+  startDate: string;
+  endDate: string;
 };
 
 const AddCompany = ({ isOpen, onClose }: Props) => {
-  const [endMonth, setEndMonth] = useState<any>("");
+  const [startDate, setStartDate] = useState<any>("");
+  const [endDate, setEndDate] = useState<any>("");
   const [zip, setZip] = useState("");
 
   const {
@@ -50,7 +52,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
     queryFn: async () => {
       if (zip && zip.length === 5) {
         try {
-          const response: AxiosResponse<ZipInfo> = await axiosIntance.get(
+          const response: AxiosResponse<ZipInfo> = await axiosInstance.get(
             `/geo/zip/${zip}`
           );
           return response.data;
@@ -81,9 +83,28 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
     }
   }, [zipInfo, setValue]);
 
-  const createCompany = (data: Company) => console.log(data);
+  const createCompany = useMutation({
+    mutationKey: ["createCompany"],
+    mutationFn: async (data: Company) => {
+      const response = await axiosInstance.post("/company", {
+        ...data,
+        phone: `+${data.phone}`,
+      });
 
-  console.log(errors);
+      return response.data;
+    },
+  });
+
+  const onSubmit = (data: Company) => {
+    createCompany.mutate(data, {
+      onSuccess: (data) => {
+        console.log(data);
+      },
+      onError: (error) => {
+        console.error("Error while creating company", error);
+      },
+    });
+  };
 
   return (
     <div
@@ -106,7 +127,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
             <h2 className="px-10 pt-10 text-xl font-bold">
               Company Information
             </h2>
-            <form onSubmit={handleSubmit(createCompany)} className="mt-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
               <div className="px-10">
                 <div className="space-y-8">
                   <div className={`flex gap-4 items-center justify-between`}>
@@ -115,18 +136,18 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                     </label>
                     <div className="w-full">
                       <input
-                        {...register("companyName", {
+                        {...register("name", {
                           required: "Company name is required!",
                         })}
                         className={`w-full border ${
-                          errors && errors.companyName && "border-red-500"
+                          errors && errors.name && "border-red-500"
                         } outline-none rounded-md px-3 py-2`}
                         type="text"
                         placeholder="Company Name"
                       />
-                      {errors && errors?.companyName?.type === "required" && (
+                      {errors && errors?.name?.type === "required" && (
                         <p className="flex items-center gap-1 text-red-600">
-                          <Warning /> {errors.companyName.message}
+                          <Warning /> {errors.name.message}
                         </p>
                       )}
                     </div>
@@ -160,26 +181,26 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
 
                     <div className="w-full">
                       <PhoneInput
-                        {...register("phoneNumber", {
+                        {...register("phone", {
                           required: "Phone number is required!",
                           minLength: 11,
                         })}
-                        onChange={(phone) => setValue("phoneNumber", phone)}
+                        onChange={(phone) => setValue("phone", phone)}
                         country={"us"}
                         placeholder={"000 000 0000"}
                         inputProps={{
                           className: `w-full border ${
-                            errors && errors.phoneNumber && "border-red-500"
+                            errors && errors.phone && "border-red-500"
                           } rounded-md outline-none px-3 py-2 pl-14`,
                         }}
                       />
 
-                      {errors && errors?.phoneNumber?.type === "required" && (
+                      {errors && errors?.phone?.type === "required" && (
                         <p className="flex items-center gap-1 text-red-600">
-                          <Warning /> {errors.phoneNumber.message}
+                          <Warning /> {errors.phone.message}
                         </p>
                       )}
-                      {errors && errors?.phoneNumber?.type === "minLength" && (
+                      {errors && errors?.phone?.type === "minLength" && (
                         <p className="flex items-center gap-1 text-red-600">
                           <Warning /> Number Must be 11 digits!
                         </p>
@@ -192,7 +213,10 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                     </label>
                     <div className="w-full">
                       <input
-                        {...register("ein", { required: "EIN is required!" })}
+                        {...register("ein", {
+                          required: "EIN is required!",
+                          minLength: 9,
+                        })}
                         className="w-full border outline-none rounded-md px-3 py-2"
                         type="text"
                         placeholder="EIN"
@@ -200,6 +224,11 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       {errors && errors?.ein?.type === "required" && (
                         <p className="flex items-center gap-1 text-red-600">
                           <Warning /> {errors.ein.message}
+                        </p>
+                      )}
+                      {errors && errors?.ein?.type === "minLength" && (
+                        <p className="flex items-center gap-1 text-red-600">
+                          <Warning /> EIN must be 9 digits.
                         </p>
                       )}
                     </div>
@@ -214,11 +243,11 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                     </label>
                     <div className="space-y-2">
                       <input
-                        {...register("address", {
+                        {...register("addressLine", {
                           required: "Address is required!",
                         })}
                         className={`w-full border ${
-                          errors && errors.address && "border-red-500"
+                          errors && errors.addressLine && "border-red-500"
                         } outline-none rounded-md px-3 py-2`}
                         type="text"
                         placeholder="Address line"
@@ -231,7 +260,10 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                               minLength: 5,
                             })}
                             className={`w-1/2 border ${
-                              errors && errors.zipCode && "border-red-500"
+                              errors &&
+                              errors.zipCode &&
+                              !zipInfo &&
+                              "border-red-500"
                             } outline-none rounded-md px-3 py-2`}
                             type="text"
                             placeholder="Zip code"
@@ -248,6 +280,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                                 className={`w-1/2 ${
                                   errors &&
                                   errors.city &&
+                                  !zipInfo &&
                                   "border rounded-md overflow-hidden border-red-500"
                                 }`}
                                 placeholder="City"
@@ -284,6 +317,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                                 className={`w-1/2 ${
                                   errors &&
                                   errors.state &&
+                                  !zipInfo &&
                                   "border rounded-md overflow-hidden border-red-500"
                                 }`}
                                 placeholder="State"
@@ -319,6 +353,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                                 className={`w-1/2 ${
                                   errors &&
                                   errors.country &&
+                                  !zipInfo &&
                                   "border rounded-md overflow-hidden border-red-500"
                                 }`}
                                 placeholder="Country"
@@ -345,36 +380,47 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                           />
                         </div>
 
-                        {errors && errors?.address?.type === "required" && (
+                        {errors && errors?.addressLine?.type === "required" && (
                           <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> {errors.address.message}
+                            <Warning /> {errors.addressLine.message}
                           </p>
                         )}
-                        {errors && errors?.zipCode?.type === "required" && (
-                          <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> {errors.zipCode.message}
-                          </p>
-                        )}
-                        {errors && errors?.zipCode?.type === "minLength" && (
-                          <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> Zipcode must be 5 digits.
-                          </p>
-                        )}
-                        {errors && errors?.city?.type === "required" && (
-                          <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> {errors.city.message}
-                          </p>
-                        )}
-                        {errors && errors?.state?.type === "required" && (
-                          <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> {errors.state.message}
-                          </p>
-                        )}
-                        {errors && errors?.country?.type === "required" && (
-                          <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> {errors.country.message}
-                          </p>
-                        )}
+                        {errors &&
+                          !errors?.addressLine &&
+                          errors?.zipCode?.type === "required" &&
+                          !zipInfo && (
+                            <p className="flex items-center gap-1 text-red-600">
+                              <Warning /> {errors.zipCode.message}
+                            </p>
+                          )}
+                        {errors &&
+                          !errors?.addressLine &&
+                          errors?.zipCode?.type === "minLength" && (
+                            <p className="flex items-center gap-1 text-red-600">
+                              <Warning /> Zipcode must be 5 digits.
+                            </p>
+                          )}
+                        {errors &&
+                          !errors?.zipCode &&
+                          errors?.city?.type === "required" && (
+                            <p className="flex items-center gap-1 text-red-600">
+                              <Warning /> {errors.city.message}
+                            </p>
+                          )}
+                        {errors &&
+                          !errors?.city &&
+                          errors?.state?.type === "required" && (
+                            <p className="flex items-center gap-1 text-red-600">
+                              <Warning /> {errors.state.message}
+                            </p>
+                          )}
+                        {errors &&
+                          !errors?.country &&
+                          errors?.country?.type === "required" && (
+                            <p className="flex items-center gap-1 text-red-600">
+                              <Warning /> {errors.country.message}
+                            </p>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -416,7 +462,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       </label>
                       <div className="w-full">
                         <Controller
-                          name="startMonth"
+                          name="startDate"
                           control={control}
                           rules={{
                             required: "Billing Start month is required!",
@@ -426,7 +472,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                           }) => (
                             <DatePicker
                               className={`w-full border ${
-                                errors && errors.startMonth && "border-red-500"
+                                errors && errors.startDate && "border-red-500"
                               } outline-none rounded-md px-3 py-2`}
                               placeholderText="Pick a month"
                               showIcon
@@ -435,16 +481,22 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                               }
                               dateFormat="MMMM yyyy"
                               showMonthYearPicker
-                              onChange={(date) => onChange(date)}
-                              selected={value}
+                              onChange={(date) => {
+                                const formattedDate = date
+                                  ? format(date, "MMMM yyyy")
+                                  : "";
+                                onChange(formattedDate);
+                                setStartDate(formattedDate);
+                              }}
+                              selected={value ? new Date(value) : null}
                               onBlur={onBlur}
                               ref={ref}
                             />
                           )}
                         />
-                        {errors && errors?.startMonth?.type === "required" && (
+                        {errors && errors?.startDate?.type === "required" && (
                           <p className="flex items-center gap-1 text-red-600">
-                            <Warning /> {errors.startMonth.message}
+                            <Warning /> {errors.startDate.message}
                           </p>
                         )}
                       </div>
@@ -453,7 +505,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       <label className="w-[200px] text-nowrap">End Month</label>
                       <div className="w-full">
                         <Controller
-                          name="endMonth"
+                          name="endDate"
                           control={control}
                           render={({
                             field: { onChange, onBlur, value, ref },
@@ -467,8 +519,14 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                               }
                               dateFormat="MMMM yyyy"
                               showMonthYearPicker
-                              onChange={(date) => onChange(date)}
-                              selected={value}
+                              onChange={(date) => {
+                                const formattedDate = date
+                                  ? format(date, "MMMM yyyy")
+                                  : "";
+                                onChange(formattedDate);
+                                setEndDate(formattedDate);
+                              }}
+                              selected={value ? new Date(value) : null}
                               onBlur={onBlur}
                               ref={ref}
                             />

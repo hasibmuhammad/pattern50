@@ -11,7 +11,7 @@ import Image from "next/image";
 import Logo from "../../../public/logo.svg";
 import Loader from "@/components/Loader";
 import { useMutation } from "@tanstack/react-query";
-import axiosInstance from "../../../lib/axiosIntance";
+import axiosInstance from "../../../lib/axiosInstance";
 
 type FormField = {
   email: string;
