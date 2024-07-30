@@ -92,7 +92,9 @@ const Companies = () => {
       </div>
 
       {/* Add company drawer */}
-      <AddCompany isOpen={isDrawerOpen} onClose={handleDrawerClose} />
+      {isDrawerOpen && (
+        <AddCompany isOpen={isDrawerOpen} onClose={handleDrawerClose} />
+      )}
     </div>
   );
 };

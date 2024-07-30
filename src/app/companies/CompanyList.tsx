@@ -245,11 +245,13 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
       </div>
 
       {/* Edit Company Drawer */}
-      <EditCompany
-        isOpen={isDrawerOpen}
-        editItemId={editItemId}
-        onClose={handleDrawerClose}
-      />
+      {isDrawerOpen && (
+        <EditCompany
+          isOpen={isDrawerOpen}
+          editItemId={editItemId}
+          onClose={handleDrawerClose}
+        />
+      )}
     </div>
   );
 };
