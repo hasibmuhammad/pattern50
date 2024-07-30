@@ -13,11 +13,13 @@ import Select from "react-select";
 import { CompanyInfoType } from "@/types/types";
 import { format, parseISO } from "date-fns";
 import Loader from "@/components/Loader";
+import { useRouter } from "next/navigation";
 
 type Props = {
   isOpen: boolean;
   editItemId: string;
   onClose: () => void;
+  onUpdate: () => void;
 };
 
 type ZipInfo = {
@@ -38,13 +40,14 @@ type Company = {
   country: string;
   masterEmail: string;
   startDate: string;
-  endDate: string;
+  endDate?: string;
 };
 
-const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
+const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
   const [startDate, setStartDate] = useState<any>("");
   const [endDate, setEndDate] = useState<any>("");
   const [zip, setZip] = useState("");
+  const router = useRouter();
 
   // populate city, state, country based on zipcode
   const {
@@ -84,6 +87,7 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
     data: companyData,
     isFetching: editInfoFetching,
     isFetched,
+    refetch,
   } = useQuery({
     queryKey: ["editCompany", editItemId],
     queryFn: async () => {
@@ -116,10 +120,6 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
       setValue("masterEmail", companyData.masterEmail);
 
       if (companyData?.billingInfo?.startDate) {
-        console.log(
-          format(parseISO(companyData?.billingInfo?.startDate), "MMMM yyyy")
-        );
-
         setValue(
           "startDate",
           format(parseISO(companyData?.billingInfo?.startDate), "MMMM yyyy")
@@ -130,12 +130,10 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
       } else {
         setStartDate("");
       }
+
       if (companyData?.billingInfo?.endDate) {
         setValue(
           "endDate",
-          format(parseISO(companyData?.billingInfo?.endDate), "MMMM yyyy")
-        );
-        console.log(
           format(parseISO(companyData?.billingInfo?.endDate), "MMMM yyyy")
         );
         setEndDate(
@@ -155,12 +153,15 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
     }
   }, [zipInfo, setValue]);
 
-  const createCompany = useMutation({
-    mutationKey: ["createCompany"],
+  const updateCompany = useMutation({
+    mutationKey: ["updateCompany", editItemId],
     mutationFn: async (data: Company) => {
-      const response = await axiosInstance.post("/company", {
+      const response = await axiosInstance.put(`/company/${editItemId}`, {
         ...data,
-        phone: `+${data.phone}`,
+        startDate: new Date(data.startDate).toISOString(),
+        endDate: data.endDate
+          ? new Date(data.endDate).toISOString()
+          : undefined,
       });
 
       return response.data;
@@ -168,12 +169,14 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
   });
 
   const onSubmit = (data: Company) => {
-    createCompany.mutate(data, {
+    updateCompany.mutate(data, {
       onSuccess: (data) => {
-        console.log(data);
+        onClose();
+        refetch();
+        onUpdate();
       },
       onError: (error) => {
-        console.error("Error while creating company", error);
+        console.error("Error while updating company", error);
       },
     });
   };
@@ -319,7 +322,7 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
                       <div className="flex justify-between">
                         <label
                           className={`${
-                            zipInfo ? "w-[220px]" : "w-[180px]"
+                            zipInfo ? "w-[200px]" : "w-[180px]"
                           } text-nowrap`}
                         >
                           Address <span className="text-red-500">*</span>
@@ -573,7 +576,7 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
                                     onChange(date?.toISOString());
                                     setStartDate(date?.toISOString());
                                   }}
-                                  selected={startDate}
+                                  selected={value ? new Date(value) : null}
                                   onBlur={onBlur}
                                   ref={ref}
                                 />
@@ -611,7 +614,7 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
                                     onChange(date?.toISOString());
                                     setEndDate(date?.toISOString());
                                   }}
-                                  selected={endDate}
+                                  selected={value ? new Date(value) : null}
                                   onBlur={onBlur}
                                   ref={ref}
                                 />
@@ -635,7 +638,11 @@ const EditCompany = ({ isOpen, editItemId, onClose }: Props) => {
                       type="submit"
                       className="bg-blue-600 rounded-md font-semibold px-3 py-2 text-white"
                     >
-                      Update
+                      {updateCompany.isPending
+                        ? "Loading..."
+                        : updateCompany.isSuccess
+                        ? "Updated"
+                        : "Update"}
                     </button>
                   </div>
                 </form>

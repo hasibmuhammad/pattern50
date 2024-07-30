@@ -19,8 +19,8 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   // Edit company things
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editItemId, setEditItemId] = useState("");
-
   const handleDrawerOpen = () => setIsDrawerOpen(true);
+
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);
     setEditItemId("");
@@ -65,10 +65,16 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   };
 
   const { data, isFetching, error, refetch } = useQuery({
-    queryKey: ["companies", currentPage, searchTerm],
+    queryKey: [
+      "companies",
+      currentPage ? currentPage : 1,
+      searchTerm ? searchTerm : "",
+    ],
     queryFn: () => fetchCompanies(currentPage, searchTerm),
     refetchOnWindowFocus: false,
   });
+
+  const handleRefetchOnUpdate = () => refetch();
 
   const companies = data?.data || [];
   const totalPage = data ? Math.ceil(data.count / 10) : 1;
@@ -250,6 +256,7 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
           isOpen={isDrawerOpen}
           editItemId={editItemId}
           onClose={handleDrawerClose}
+          onUpdate={handleRefetchOnUpdate}
         />
       )}
     </div>
