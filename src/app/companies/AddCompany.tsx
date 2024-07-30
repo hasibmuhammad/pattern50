@@ -10,7 +10,6 @@ import axiosInstance from "../../../lib/axiosInstance";
 import { AxiosResponse } from "axios";
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
-import { format } from "date-fns";
 
 type Props = {
   isOpen: boolean;
@@ -482,11 +481,8 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                               dateFormat="MMMM yyyy"
                               showMonthYearPicker
                               onChange={(date) => {
-                                const formattedDate = date
-                                  ? format(date, "MMMM yyyy")
-                                  : "";
-                                onChange(formattedDate);
-                                setStartDate(formattedDate);
+                                onChange(date?.toISOString());
+                                setStartDate(date?.toISOString());
                               }}
                               selected={value ? new Date(value) : null}
                               onBlur={onBlur}
@@ -520,11 +516,8 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                               dateFormat="MMMM yyyy"
                               showMonthYearPicker
                               onChange={(date) => {
-                                const formattedDate = date
-                                  ? format(date, "MMMM yyyy")
-                                  : "";
-                                onChange(formattedDate);
-                                setEndDate(formattedDate);
+                                onChange(date?.toISOString());
+                                setEndDate(date?.toISOString());
                               }}
                               selected={value ? new Date(value) : null}
                               onBlur={onBlur}
