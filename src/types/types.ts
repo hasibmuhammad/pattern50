@@ -74,6 +74,8 @@ export type CompanyInfoType = {
   acc_contactId?: string;
   created_at: string;
   updated_at: string;
+  startDate: string;
+  endDate: string;
   __v: number;
   addresses: {
     _id: string;
@@ -87,6 +89,23 @@ export type CompanyInfoType = {
     created_at: string;
     updated_at: string;
     __v: number;
+  };
+  address: {
+    _id: string;
+    created_by: string;
+    addressLine: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  billingInfo: {
+    startDate: string;
+    endDate: string;
   };
   productsCount: number;
 };

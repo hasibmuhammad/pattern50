@@ -9,11 +9,28 @@ import { useRouter } from "next/navigation";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { CompanyInfoType } from "@/types/types";
 import axiosInstance from "../../../lib/axiosInstance";
+import EditCompany from "./EditCompany";
 
 const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Edit company things
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editItemId, setEditItemId] = useState("");
+
+  const handleDrawerOpen = () => setIsDrawerOpen(true);
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false);
+    setEditItemId("");
+  };
+
+  // handleEdit Click
+  const handleEditClick = (companyId: string) => {
+    setEditItemId(companyId);
+    handleDrawerOpen();
+  };
 
   useEffect(() => {
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -138,7 +155,12 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
         </thead>
         <tbody>
           {companies.map((company) => (
-            <tr key={company?._id} className="bg-white border-b">
+            <tr
+              key={company?._id}
+              className={` border-b ${
+                company._id === editItemId ? "bg-blue-200" : "bg-white"
+              }`}
+            >
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
@@ -151,13 +173,16 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 {company?.addresses?.city}, {company?.addresses?.country}
               </td>
               <td className="px-6 py-4">{company?.productsCount}</td>
-              <td className="px-6 py-4">
-                <a
-                  href="#"
+              <td className="px-6 py-4 space-x-4">
+                <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                  Details
+                </button>
+                <button
+                  onClick={() => handleEditClick(company?._id)}
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                 >
-                  Details
-                </a>
+                  Edit
+                </button>
               </td>
             </tr>
           ))}
@@ -218,6 +243,13 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
           <ArrowRight size={24} />
         </button>
       </div>
+
+      {/* Edit Company Drawer */}
+      <EditCompany
+        isOpen={isDrawerOpen}
+        editItemId={editItemId}
+        onClose={handleDrawerClose}
+      />
     </div>
   );
 };
