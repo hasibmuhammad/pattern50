@@ -130,6 +130,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
   });
 
   const onSubmit = (data: Company) => {
+    console.log(data);
     createCompany.mutate(data, {
       onSuccess: (data) => {
         onClose();
@@ -205,7 +206,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                         errors={errors}
                         name="phone"
                         placeholder="000 000 0000"
-                        onChange={(phone) => setValue("phone", phone)}
+                        setValue={setValue}
                       />
                       <FieldError errors={errors} name="phone" />
                     </div>

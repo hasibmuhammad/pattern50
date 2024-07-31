@@ -6,7 +6,8 @@ type Props = {
   errors: any;
   name: string;
   placeholder: string;
-  onChange: (value: string) => void;
+  // onChange: (value: string) => void;
+  setValue: (name: any, value: any) => void;
   value?: string;
 };
 
@@ -15,14 +16,14 @@ const InputPhone = ({
   errors,
   name,
   placeholder,
-  onChange,
+  setValue,
   value,
 }: Props) => {
   return (
     <>
       <PhoneInput
         {...register(name)}
-        onChange={onChange}
+        onChange={(phone) => setValue(name, phone)}
         value={value}
         country={"us"}
         placeholder={placeholder}
