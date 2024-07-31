@@ -1,15 +1,12 @@
 "use client";
-import { CalendarBlank, Warning, X } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
-import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../lib/axiosInstance";
 import { AxiosResponse } from "axios";
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/components/Input";
@@ -135,7 +132,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
   const onSubmit = (data: Company) => {
     createCompany.mutate(data, {
       onSuccess: (data) => {
-        console.log(data);
+        onClose();
       },
       onError: (error) => {
         console.error("Error while creating company", error);

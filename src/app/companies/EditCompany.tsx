@@ -1,15 +1,12 @@
 "use client";
-import { CalendarBlank, Warning, X } from "@phosphor-icons/react";
+import { Warning, X } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
-import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/bootstrap.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../lib/axiosInstance";
 import { AxiosResponse } from "axios";
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import { useForm } from "react-hook-form";
 import { CompanyInfoType } from "@/types/types";
 import { format, parseISO } from "date-fns";
 import Loader from "@/components/Loader";
