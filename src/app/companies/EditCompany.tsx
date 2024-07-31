@@ -47,6 +47,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
   const [startDate, setStartDate] = useState<any>("");
   const [endDate, setEndDate] = useState<any>("");
   const [zip, setZip] = useState("");
+  const [endDateError, setEndDateError] = useState("");
   const router = useRouter();
 
   // populate city, state, country based on zipcode
@@ -106,6 +107,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
       return null;
     },
     enabled: !!editItemId,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -175,7 +177,15 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
         refetch();
         onUpdate();
       },
-      onError: (error) => {
+      onError: (error: any) => {
+        if (
+          error.response.data.errorCode ===
+          "endDate_must_be_greater_than_StartDate"
+        ) {
+          setEndDateError(
+            "End date must be greater than or equal to Start date!"
+          );
+        }
         console.error("Error while updating company", error);
       },
     });
@@ -620,6 +630,12 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                                 />
                               )}
                             />
+
+                            {endDateError && (
+                              <p className="flex gap-1 text-red-600">
+                                <Warning size={28} /> {endDateError}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
