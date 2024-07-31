@@ -8,7 +8,7 @@ const Overview = () => {
 
   const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
   return (
-    <div className="flex gap-5">
+    <div className="flex">
       <div className="visible lg:invisible py-5 lg:py-0">
         <List
           onClick={handleSidebarVisibility}

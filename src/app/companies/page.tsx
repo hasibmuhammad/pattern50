@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CompanyList from "./CompanyList";
-import { List, MagnifyingGlass } from "@phosphor-icons/react";
+import { List, MagnifyingGlass, PlusCircle } from "@phosphor-icons/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
@@ -58,6 +58,7 @@ const Companies = () => {
         />
       </div>
 
+      {/* Sidebar Component */}
       <Sidebar
         isOpen={isSidebarOpen}
         handleSidebarVisibility={handleSidebarVisibility}
@@ -69,7 +70,7 @@ const Companies = () => {
         <h1 className="text-3xl font-bold">All Companies</h1>
         <div>
           <form onSubmit={handleSubmit(search)}>
-            <div className="flex items-center gap-5">
+            <div className="flex flex-col-reverse md:flex-row items-center gap-5">
               <div className="w-full flex gap-2">
                 <div className="w-full relative flex justify-center items-center">
                   <MagnifyingGlass className="absolute left-2" />
@@ -91,9 +92,10 @@ const Companies = () => {
               </div>
               <button
                 type="button"
-                className="text-nowrap bg-blue-500 px-4 py-2 rounded-md text-white"
+                className="flex items-center gap-1 text-nowrap bg-blue-500 px-4 py-2 rounded-md text-white"
                 onClick={handleDrawerOpen}
               >
+                <PlusCircle weight="bold" size={24} />
                 Add Company
               </button>
             </div>
