@@ -44,7 +44,7 @@ const Companies = () => {
   const handleDrawerClose = () => setIsDrawerOpen(false);
 
   return (
-    <div className="relative w-[78vw]">
+    <div className="relative w-full lg:w-[78vw]">
       <div className="space-y-2">
         <h4 className="font-bold text-blue-500">Companies</h4>
         <h1 className="text-3xl font-bold">All Companies</h1>

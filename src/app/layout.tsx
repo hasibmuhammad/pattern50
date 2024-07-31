@@ -19,14 +19,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+        ></meta>
+      </head>
       <body className={inter.className}>
         {/* <Navbar /> */}
         <QueryClientWrapperProvider>
           <div className="min-h-screen flex">
-            <aside className="fixed top-0 left-0 w-64 h-full">
+            <aside className="invisible lg:visible fixed top-0 left-0 w-64 h-full">
               <Sidebar />
             </aside>
-            <div className="ml-64 flex-1 p-4 overflow-y-auto">{children}</div>
+            <div className="lg:ml-64 flex-1 p-4 overflow-y-auto">
+              {children}
+            </div>
           </div>
         </QueryClientWrapperProvider>
       </body>

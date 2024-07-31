@@ -136,65 +136,67 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
 
   return (
     <div className="relative sm:rounded-lg">
-      <table className="w-full text-sm text-left">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              Company
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Phone
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Email
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Location
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Products
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map((company) => (
-            <tr
-              key={company?._id}
-              className={` border-b ${
-                company._id === editItemId ? "bg-blue-200" : "bg-white"
-              }`}
-            >
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-              >
-                {company?.name}
+      <div className="w-full overflow-x-scroll md:overflow-hidden">
+        <table className="w-full text-sm text-left">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              <th scope="col" className="px-6 py-3">
+                Company
               </th>
-              <td className="px-6 py-4">{company?.phone}</td>
-              <td className="px-6 py-4">{company?.email}</td>
-              <td className="px-6 py-4">
-                {company?.addresses?.city}, {company?.addresses?.country}
-              </td>
-              <td className="px-6 py-4">{company?.productsCount}</td>
-              <td className="px-6 py-4 space-x-4">
-                <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                  Details
-                </button>
-                <button
-                  onClick={() => handleEditClick(company?._id)}
-                  className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                >
-                  Edit
-                </button>
-              </td>
+              <th scope="col" className="px-6 py-3">
+                Phone
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Email
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Location
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Products
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Action
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="flex items-center justify-end my-10">
+          </thead>
+          <tbody>
+            {companies.map((company) => (
+              <tr
+                key={company?._id}
+                className={` border-b ${
+                  company._id === editItemId ? "bg-blue-200" : "bg-white"
+                }`}
+              >
+                <th
+                  scope="row"
+                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                >
+                  {company?.name}
+                </th>
+                <td className="px-6 py-4">{company?.phone}</td>
+                <td className="px-6 py-4">{company?.email}</td>
+                <td className="px-6 py-4">
+                  {company?.addresses?.city}, {company?.addresses?.country}
+                </td>
+                <td className="px-6 py-4">{company?.productsCount}</td>
+                <td className="px-6 py-4 space-x-4">
+                  <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                    Details
+                  </button>
+                  <button
+                    onClick={() => handleEditClick(company?._id)}
+                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex items-center justify-center md:justify-end my-10 px-10 lg:px-0">
         <button
           onClick={() => {
             onPageChange(currentPage - 1);
