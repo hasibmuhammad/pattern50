@@ -29,9 +29,7 @@ export default function RootLayout({
         {/* <Navbar /> */}
         <QueryClientWrapperProvider>
           <div className="min-h-screen flex">
-            <aside className="invisible lg:visible fixed top-0 left-0 w-64 h-full">
-              <Sidebar />
-            </aside>
+            <Sidebar />
             <div className="lg:ml-64 flex-1 p-4 overflow-y-auto">
               {children}
             </div>

@@ -1,11 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CompanyList from "./CompanyList";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { List, MagnifyingGlass } from "@phosphor-icons/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
 import AddCompany from "./AddCompany";
+import Sidebar from "@/components/Sidebar";
 
 type SearchForm = {
   term: string;
@@ -43,8 +44,26 @@ const Companies = () => {
   const handleDrawerOpen = () => setIsDrawerOpen(true);
   const handleDrawerClose = () => setIsDrawerOpen(false);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <div className="relative w-full lg:w-[78vw]">
+      <div className="visible lg:invisible py-5 lg:py-0">
+        <List
+          onClick={handleSidebarVisibility}
+          className="cursor-pointer"
+          size={32}
+        />
+      </div>
+
+      <Sidebar
+        isOpen={isSidebarOpen}
+        handleSidebarVisibility={handleSidebarVisibility}
+      />
+
+      {/* Company Start */}
       <div className="space-y-2">
         <h4 className="font-bold text-blue-500">Companies</h4>
         <h1 className="text-3xl font-bold">All Companies</h1>
