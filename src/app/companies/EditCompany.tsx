@@ -198,6 +198,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
     mutationFn: async (data: Company) => {
       const response = await axiosInstance.put(`/company/${editItemId}`, {
         ...data,
+        phone: `+${data.phone}`,
         startDate: new Date(data.startDate).toISOString(),
         endDate: data.endDate
           ? new Date(data.endDate).toISOString()
@@ -305,6 +306,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             name="phone"
                             placeholder="000 000 0000"
                             onChange={(phone) => setValue("phone", phone)}
+                            value={companyData?.phone ? companyData?.phone : ""}
                           />
                           <FieldError errors={errors} name="phone" />
                         </div>
