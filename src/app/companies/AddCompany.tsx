@@ -237,7 +237,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                       <input
                         {...register("ein")}
                         className={`w-full border ${
-                          errors && errors.phone && "border-red-500"
+                          errors && errors.ein && "border-red-500"
                         } outline-none rounded-md px-3 py-2`}
                         type="text"
                         placeholder="EIN"

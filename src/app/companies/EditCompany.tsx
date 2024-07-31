@@ -14,6 +14,8 @@ import { CompanyInfoType } from "@/types/types";
 import { format, parseISO } from "date-fns";
 import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type Props = {
   isOpen: boolean;
@@ -42,6 +44,37 @@ type Company = {
   startDate: string;
   endDate?: string;
 };
+
+const CompanySchema = z.object({
+  name: z.string().min(1, { message: "Company Name is required" }),
+  email: z
+    .string()
+    .min(1, { message: "Email is required!" })
+    .email({ message: "Invalid email address" }),
+  phone: z.string({ message: "Phone number is required!" }).min(11, {
+    message: "Phone number should be 11 digits",
+  }),
+  ein: z
+    .string()
+    .min(1, { message: "EIN is required!" })
+    .length(9, { message: "EIN must be 9 digits" }),
+  addressLine: z.string().min(1, { message: "Address is required" }),
+  zipCode: z
+    .string()
+    .min(1, { message: "Zipcode is required!" })
+    .length(5, { message: "Zipcode must be 5 digits" }),
+  city: z.string().min(1, { message: "City is required" }),
+  state: z.string().min(1, { message: "State is required" }),
+  country: z.string().min(1, { message: "Country is required" }),
+  masterEmail: z
+    .string()
+    .min(1, { message: "Master email is required!" })
+    .email({ message: "Invalid master email address" }),
+  startDate: z.string({ required_error: "Billing start month is required!" }),
+  endDate: z.string().optional(),
+});
+
+type CompanySchema = z.infer<typeof CompanySchema>;
 
 const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
   const [startDate, setStartDate] = useState<any>("");
@@ -81,7 +114,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<Company>();
+  } = useForm<Company>({ resolver: zodResolver(CompanySchema) });
 
   // Get date according to the currently editing item
   const {
@@ -231,16 +264,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                         </label>
                         <div className="w-full">
                           <input
-                            {...register("name", {
-                              required: "Company name is required!",
-                            })}
+                            {...register("name")}
                             className={`w-full border ${
                               errors && errors.name && "border-red-500"
                             } outline-none rounded-md px-3 py-2`}
                             type="text"
                             placeholder="Company Name"
                           />
-                          {errors && errors?.name?.type === "required" && (
+                          {errors && errors?.name && (
                             <p className="flex items-center gap-1 text-red-600">
                               <Warning /> {errors.name.message}
                             </p>
@@ -253,16 +284,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                         </label>
                         <div className="w-full">
                           <input
-                            {...register("email", {
-                              required: "Email address is required!",
-                            })}
+                            {...register("email")}
                             className={`w-full border ${
                               errors && errors.email && "border-red-500"
                             } outline-none rounded-md px-3 py-2`}
                             type="email"
                             placeholder="Email address"
                           />
-                          {errors && errors?.email?.type === "required" && (
+                          {errors && errors?.email && (
                             <p className="flex items-center gap-1 text-red-600">
                               <Warning /> {errors.email.message}
                             </p>
@@ -276,10 +305,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
 
                         <div className="w-full">
                           <PhoneInput
-                            {...register("phone", {
-                              required: "Phone number is required!",
-                              minLength: 11,
-                            })}
+                            {...register("phone")}
                             onChange={(phone) => setValue("phone", phone)}
                             country={"us"}
                             placeholder={"000 000 0000"}
@@ -291,14 +317,9 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             value={companyData?.phone}
                           />
 
-                          {errors && errors?.phone?.type === "required" && (
+                          {errors && errors?.phone && (
                             <p className="flex items-center gap-1 text-red-600">
                               <Warning /> {errors.phone.message}
-                            </p>
-                          )}
-                          {errors && errors?.phone?.type === "minLength" && (
-                            <p className="flex items-center gap-1 text-red-600">
-                              <Warning /> Number Must be 11 digits!
                             </p>
                           )}
                         </div>
@@ -309,22 +330,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                         </label>
                         <div className="w-full">
                           <input
-                            {...register("ein", {
-                              required: "EIN is required!",
-                              minLength: 9,
-                            })}
+                            {...register("ein")}
                             className="w-full border outline-none rounded-md px-3 py-2"
                             type="text"
                             placeholder="EIN"
                           />
-                          {errors && errors?.ein?.type === "required" && (
+                          {errors && errors?.ein && (
                             <p className="flex items-center gap-1 text-red-600">
                               <Warning /> {errors.ein.message}
-                            </p>
-                          )}
-                          {errors && errors?.ein?.type === "minLength" && (
-                            <p className="flex items-center gap-1 text-red-600">
-                              <Warning /> EIN must be 9 digits.
                             </p>
                           )}
                         </div>
@@ -351,10 +364,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                           <div className="space-y-2 w-full">
                             <div className="flex gap-2">
                               <input
-                                {...register("zipCode", {
-                                  required: "Zipcode is required!",
-                                  minLength: 5,
-                                })}
+                                {...register("zipCode")}
                                 className={`w-1/2 border ${
                                   errors &&
                                   errors.zipCode &&
@@ -367,9 +377,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                               />
 
                               <Controller
-                                {...register("city", {
-                                  required: "City is required!",
-                                })}
+                                {...register("city")}
                                 control={control}
                                 render={() => (
                                   <Select
@@ -404,9 +412,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             </div>
                             <div className="flex gap-2">
                               <Controller
-                                {...register("state", {
-                                  required: "State is required!",
-                                })}
+                                {...register("state")}
                                 control={control}
                                 render={() => (
                                   <Select
@@ -440,9 +446,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                               />
 
                               <Controller
-                                {...register("country", {
-                                  required: "Country is required!",
-                                })}
+                                {...register("country")}
                                 control={control}
                                 render={() => (
                                   <Select
@@ -476,48 +480,35 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                               />
                             </div>
 
-                            {errors &&
-                              errors?.addressLine?.type === "required" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.addressLine.message}
-                                </p>
-                              )}
+                            {errors && errors?.addressLine && (
+                              <p className="flex items-center gap-1 text-red-600">
+                                <Warning /> {errors.addressLine.message}
+                              </p>
+                            )}
                             {errors &&
                               !errors?.addressLine &&
-                              errors?.zipCode?.type === "required" &&
+                              errors?.zipCode &&
                               !zipInfo && (
                                 <p className="flex items-center gap-1 text-red-600">
                                   <Warning /> {errors.zipCode.message}
                                 </p>
                               )}
-                            {errors &&
-                              !errors?.addressLine &&
-                              errors?.zipCode?.type === "minLength" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> Zipcode must be 5 digits.
-                                </p>
-                              )}
-                            {errors &&
-                              !errors?.zipCode &&
-                              errors?.city?.type === "required" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.city.message}
-                                </p>
-                              )}
-                            {errors &&
-                              !errors?.city &&
-                              errors?.state?.type === "required" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.state.message}
-                                </p>
-                              )}
-                            {errors &&
-                              !errors?.country &&
-                              errors?.country?.type === "required" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.country.message}
-                                </p>
-                              )}
+
+                            {errors && !errors?.zipCode && errors?.city && (
+                              <p className="flex items-center gap-1 text-red-600">
+                                <Warning /> {errors.city.message}
+                              </p>
+                            )}
+                            {errors && !errors?.city && errors?.state && (
+                              <p className="flex items-center gap-1 text-red-600">
+                                <Warning /> {errors.state.message}
+                              </p>
+                            )}
+                            {errors && !errors?.country && errors?.country && (
+                              <p className="flex items-center gap-1 text-red-600">
+                                <Warning /> {errors.country.message}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -533,21 +524,18 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                           </label>
                           <div className="w-full">
                             <input
-                              {...register("masterEmail", {
-                                required: "Master email is required!",
-                              })}
+                              {...register("masterEmail")}
                               className={`w-full border ${
                                 errors && errors.masterEmail && "border-red-500"
                               } outline-none rounded-md px-3 py-2`}
                               type="email"
                               placeholder="Email address"
                             />
-                            {errors &&
-                              errors?.masterEmail?.type === "required" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.masterEmail.message}
-                                </p>
-                              )}
+                            {errors && errors?.masterEmail && (
+                              <p className="flex items-center gap-1 text-red-600">
+                                <Warning /> {errors.masterEmail.message}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -563,9 +551,6 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             <Controller
                               name="startDate"
                               control={control}
-                              rules={{
-                                required: "Billing Start month is required!",
-                              }}
                               render={({
                                 field: { onChange, onBlur, value, ref },
                               }) => (
@@ -592,12 +577,11 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                                 />
                               )}
                             />
-                            {errors &&
-                              errors?.startDate?.type === "required" && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.startDate.message}
-                                </p>
-                              )}
+                            {errors && errors?.startDate && (
+                              <p className="flex items-center gap-1 text-red-600">
+                                <Warning /> {errors.startDate.message}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="flex gap-4 items-center justify-between">
