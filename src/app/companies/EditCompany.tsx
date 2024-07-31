@@ -16,6 +16,11 @@ import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import InputDate from "@/components/InputDate";
+import FieldError from "@/components/FieldError";
+import Input from "@/components/Input";
+import InputSelect from "@/components/InputSelect";
+import InputPhone from "@/components/InputPhone";
 
 type Props = {
   isOpen: boolean;
@@ -263,19 +268,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                           Company Name <span className="text-red-500">*</span>
                         </label>
                         <div className="w-full">
-                          <input
-                            {...register("name")}
-                            className={`w-full border ${
-                              errors && errors.name && "border-red-500"
-                            } outline-none rounded-md px-3 py-2`}
-                            type="text"
+                          <Input
+                            register={register}
+                            errors={errors}
+                            name={"name"}
                             placeholder="Company Name"
+                            type="text"
                           />
-                          {errors && errors?.name && (
-                            <p className="flex items-center gap-1 text-red-600">
-                              <Warning /> {errors.name.message}
-                            </p>
-                          )}
+                          <FieldError errors={errors} name="name" />
                         </div>
                       </div>
                       <div className="flex gap-4 items-center justify-between">
@@ -283,19 +283,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                           Email Address <span className="text-red-500">*</span>
                         </label>
                         <div className="w-full">
-                          <input
-                            {...register("email")}
-                            className={`w-full border ${
-                              errors && errors.email && "border-red-500"
-                            } outline-none rounded-md px-3 py-2`}
+                          <Input
+                            register={register}
+                            errors={errors}
+                            name="email"
+                            placeholder="Email Address"
                             type="email"
-                            placeholder="Email address"
                           />
-                          {errors && errors?.email && (
-                            <p className="flex items-center gap-1 text-red-600">
-                              <Warning /> {errors.email.message}
-                            </p>
-                          )}
+                          <FieldError errors={errors} name="email" />
                         </div>
                       </div>
                       <div className="flex gap-4 items-center justify-between">
@@ -304,24 +299,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                         </label>
 
                         <div className="w-full">
-                          <PhoneInput
-                            {...register("phone")}
+                          <InputPhone
+                            register={register}
+                            errors={errors}
+                            name="phone"
+                            placeholder="000 000 0000"
                             onChange={(phone) => setValue("phone", phone)}
-                            country={"us"}
-                            placeholder={"000 000 0000"}
-                            inputProps={{
-                              className: `w-full border ${
-                                errors && errors.phone && "border-red-500"
-                              } rounded-md outline-none px-3 py-2 pl-14`,
-                            }}
-                            value={companyData?.phone}
                           />
-
-                          {errors && errors?.phone && (
-                            <p className="flex items-center gap-1 text-red-600">
-                              <Warning /> {errors.phone.message}
-                            </p>
-                          )}
+                          <FieldError errors={errors} name="phone" />
                         </div>
                       </div>
                       <div className="flex gap-4 items-center justify-between">
@@ -329,17 +314,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                           EIN <span className="text-red-500">*</span>
                         </label>
                         <div className="w-full">
-                          <input
-                            {...register("ein")}
-                            className="w-full border outline-none rounded-md px-3 py-2"
-                            type="text"
+                          <Input
+                            register={register}
+                            errors={errors}
+                            name="ein"
                             placeholder="EIN"
+                            type="text"
                           />
-                          {errors && errors?.ein && (
-                            <p className="flex items-center gap-1 text-red-600">
-                              <Warning /> {errors.ein.message}
-                            </p>
-                          )}
+                          <FieldError errors={errors} name="ein" />
                         </div>
                       </div>
                       <div className="flex justify-between">
@@ -351,163 +333,68 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                           Address <span className="text-red-500">*</span>
                         </label>
                         <div className="space-y-2">
-                          <input
-                            {...register("addressLine", {
-                              required: "Address is required!",
-                            })}
-                            className={`w-full border ${
-                              errors && errors.addressLine && "border-red-500"
-                            } outline-none rounded-md px-3 py-2`}
-                            type="text"
+                          <Input
+                            register={register}
+                            errors={errors}
+                            name="addressLine"
                             placeholder="Address line"
+                            type="text"
                           />
                           <div className="space-y-2 w-full">
                             <div className="flex gap-2">
-                              <input
-                                {...register("zipCode")}
-                                className={`w-1/2 border ${
-                                  errors &&
-                                  errors.zipCode &&
-                                  !zipInfo &&
-                                  "border-red-500"
-                                } outline-none rounded-md px-3 py-2`}
-                                type="text"
+                              <Input
+                                register={register}
+                                errors={errors}
+                                name="zipCode"
                                 placeholder="Zip code"
+                                type="text"
                                 onChange={(e) => setZip(e.target.value)}
                               />
 
-                              <Controller
-                                {...register("city")}
+                              <InputSelect
+                                register={register}
                                 control={control}
-                                render={() => (
-                                  <Select
-                                    className={`w-1/2 ${
-                                      errors &&
-                                      errors.city &&
-                                      !zipInfo &&
-                                      "border rounded-md overflow-hidden border-red-500"
-                                    }`}
-                                    placeholder="City"
-                                    options={
-                                      zipInfo
-                                        ? [
-                                            {
-                                              value: zipInfo.city,
-                                              label: zipInfo.city,
-                                            },
-                                          ]
-                                        : []
-                                    }
-                                    value={
-                                      zipInfo
-                                        ? {
-                                            value: zipInfo.city,
-                                            label: zipInfo.city,
-                                          }
-                                        : null
-                                    }
-                                  />
-                                )}
+                                errors={errors}
+                                name="city"
+                                placeholder="City"
+                                zipInfo={zipInfo}
                               />
                             </div>
                             <div className="flex gap-2">
-                              <Controller
-                                {...register("state")}
+                              <InputSelect
+                                register={register}
                                 control={control}
-                                render={() => (
-                                  <Select
-                                    className={`w-1/2 ${
-                                      errors &&
-                                      errors.state &&
-                                      !zipInfo &&
-                                      "border rounded-md overflow-hidden border-red-500"
-                                    }`}
-                                    placeholder="State"
-                                    options={
-                                      zipInfo
-                                        ? [
-                                            {
-                                              value: zipInfo.state,
-                                              label: zipInfo.state,
-                                            },
-                                          ]
-                                        : []
-                                    }
-                                    value={
-                                      zipInfo
-                                        ? {
-                                            value: zipInfo.state,
-                                            label: zipInfo.state,
-                                          }
-                                        : null
-                                    }
-                                  />
-                                )}
+                                errors={errors}
+                                name="state"
+                                placeholder="State"
+                                zipInfo={zipInfo}
                               />
 
-                              <Controller
-                                {...register("country")}
+                              <InputSelect
+                                register={register}
                                 control={control}
-                                render={() => (
-                                  <Select
-                                    className={`w-1/2 ${
-                                      errors &&
-                                      errors.country &&
-                                      !zipInfo &&
-                                      "border rounded-md overflow-hidden border-red-500"
-                                    }`}
-                                    placeholder="Country"
-                                    options={
-                                      zipInfo
-                                        ? [
-                                            {
-                                              value: zipInfo.country,
-                                              label: zipInfo.country,
-                                            },
-                                          ]
-                                        : []
-                                    }
-                                    value={
-                                      zipInfo
-                                        ? {
-                                            value: zipInfo.country,
-                                            label: zipInfo.country,
-                                          }
-                                        : null
-                                    }
-                                  />
-                                )}
+                                errors={errors}
+                                name="country"
+                                placeholder="Country"
+                                zipInfo={zipInfo}
                               />
                             </div>
+                            <FieldError errors={errors} name="addressLine" />
 
-                            {errors && errors?.addressLine && (
-                              <p className="flex items-center gap-1 text-red-600">
-                                <Warning /> {errors.addressLine.message}
-                              </p>
-                            )}
                             {errors &&
-                              !errors?.addressLine &&
-                              errors?.zipCode &&
-                              !zipInfo && (
-                                <p className="flex items-center gap-1 text-red-600">
-                                  <Warning /> {errors.zipCode.message}
-                                </p>
+                              errors.zipCode &&
+                              !errors.addressLine && (
+                                <FieldError errors={errors} name="zipCode" />
                               )}
 
                             {errors && !errors?.zipCode && errors?.city && (
-                              <p className="flex items-center gap-1 text-red-600">
-                                <Warning /> {errors.city.message}
-                              </p>
+                              <FieldError errors={errors} name="city" />
                             )}
                             {errors && !errors?.city && errors?.state && (
-                              <p className="flex items-center gap-1 text-red-600">
-                                <Warning /> {errors.state.message}
-                              </p>
+                              <FieldError errors={errors} name="state" />
                             )}
                             {errors && !errors?.country && errors?.country && (
-                              <p className="flex items-center gap-1 text-red-600">
-                                <Warning /> {errors.country.message}
-                              </p>
+                              <FieldError errors={errors} name="country" />
                             )}
                           </div>
                         </div>
@@ -523,19 +410,14 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             <span className="text-red-500">*</span>
                           </label>
                           <div className="w-full">
-                            <input
-                              {...register("masterEmail")}
-                              className={`w-full border ${
-                                errors && errors.masterEmail && "border-red-500"
-                              } outline-none rounded-md px-3 py-2`}
+                            <Input
+                              register={register}
+                              errors={errors}
+                              name="masterEmail"
+                              placeholder="Email Address"
                               type="email"
-                              placeholder="Email address"
                             />
-                            {errors && errors?.masterEmail && (
-                              <p className="flex items-center gap-1 text-red-600">
-                                <Warning /> {errors.masterEmail.message}
-                              </p>
-                            )}
+                            <FieldError errors={errors} name="masterEmail" />
                           </div>
                         </div>
                       </div>
@@ -548,40 +430,13 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             Start Month <span className="text-red-500">*</span>
                           </label>
                           <div className="w-full">
-                            <Controller
-                              name="startDate"
+                            <InputDate
                               control={control}
-                              render={({
-                                field: { onChange, onBlur, value, ref },
-                              }) => (
-                                <DatePicker
-                                  className={`w-full border ${
-                                    errors &&
-                                    errors.startDate &&
-                                    "border-red-500"
-                                  } outline-none rounded-md px-3 py-2`}
-                                  placeholderText="Pick a month"
-                                  showIcon
-                                  icon={
-                                    <CalendarBlank className="text-slate-500" />
-                                  }
-                                  dateFormat="MMMM yyyy"
-                                  showMonthYearPicker
-                                  onChange={(date) => {
-                                    onChange(date?.toISOString());
-                                    setStartDate(date?.toISOString());
-                                  }}
-                                  selected={value ? new Date(value) : null}
-                                  onBlur={onBlur}
-                                  ref={ref}
-                                />
-                              )}
+                              errors={errors}
+                              name="startDate"
+                              placeholder="Pick a month"
                             />
-                            {errors && errors?.startDate && (
-                              <p className="flex items-center gap-1 text-red-600">
-                                <Warning /> {errors.startDate.message}
-                              </p>
-                            )}
+                            <FieldError errors={errors} name="startDate" />
                           </div>
                         </div>
                         <div className="flex gap-4 items-center justify-between">
@@ -589,30 +444,11 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                             End Month
                           </label>
                           <div className="w-full">
-                            <Controller
-                              name="endDate"
+                            <InputDate
                               control={control}
-                              render={({
-                                field: { onChange, onBlur, value, ref },
-                              }) => (
-                                <DatePicker
-                                  className="w-full border outline-none rounded-md px-3 py-2"
-                                  placeholderText="Pick a month"
-                                  showIcon
-                                  icon={
-                                    <CalendarBlank className="text-slate-500" />
-                                  }
-                                  dateFormat="MMMM yyyy"
-                                  showMonthYearPicker
-                                  onChange={(date) => {
-                                    onChange(date?.toISOString());
-                                    setEndDate(date?.toISOString());
-                                  }}
-                                  selected={value ? new Date(value) : null}
-                                  onBlur={onBlur}
-                                  ref={ref}
-                                />
-                              )}
+                              errors={errors}
+                              name="endDate"
+                              placeholder="Pick a month"
                             />
 
                             {endDateError && (
