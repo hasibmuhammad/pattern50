@@ -9,9 +9,21 @@ import AddCompany from "./AddCompany";
 import Sidebar from "@/components/Sidebar";
 import Button from "@/components/button/button";
 
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Input from "@/components/Input";
+
 type SearchForm = {
   term: string;
 };
+
+const CompanySearchSchema = z.object({
+  term: z
+    .string({ required_error: "Search term required!" })
+    .min(2, { message: "Search term should be more than 2" }),
+});
+
+type CompanySearchSchema = z.infer<typeof CompanySearchSchema>;
 
 const Companies = () => {
   const {
@@ -19,7 +31,7 @@ const Companies = () => {
     register,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<SearchForm>();
+  } = useForm<SearchForm>({ resolver: zodResolver(CompanySearchSchema) });
 
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
@@ -75,12 +87,22 @@ const Companies = () => {
               <div className="w-full flex gap-2">
                 <div className="w-full relative flex justify-center items-center">
                   <MagnifyingGlass className="absolute left-2" />
-                  <input
+                  {/* <input
                     {...register("term", {
                       required: "Please write something to search...",
                     })}
                     className="border outline-none w-full px-10 py-2 rounded-md"
                     placeholder="Search by name, phone, email, location"
+                    defaultValue={searchTerm}
+                  /> */}
+
+                  <Input
+                    register={register}
+                    errors={errors}
+                    name="term"
+                    placeholder="Please write sometihng to search..."
+                    className="px-10"
+                    type="text"
                     defaultValue={searchTerm}
                   />
                 </div>

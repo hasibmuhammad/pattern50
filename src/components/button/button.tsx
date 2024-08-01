@@ -21,7 +21,6 @@ const button = cva("px-4 py-2 font-semibold rounded-md text-nowrap", {
   defaultVariants: {
     intent: "primary",
     size: "medium",
-    state: "inactive",
   },
 });
 

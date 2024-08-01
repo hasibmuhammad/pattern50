@@ -8,6 +8,7 @@ type Props = {
   type: string;
   onChange?: (e: any) => void;
   className?: string;
+  defaultValue?: string;
 };
 
 const Input = ({
@@ -18,6 +19,7 @@ const Input = ({
   type,
   onChange,
   className,
+  defaultValue,
 }: Props) => {
   return (
     <>
@@ -34,6 +36,7 @@ const Input = ({
         type={type}
         placeholder={placeholder}
         onChange={onChange}
+        defaultValue={defaultValue}
       />
     </>
   );
