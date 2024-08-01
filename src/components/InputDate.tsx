@@ -1,15 +1,23 @@
 import { CalendarBlank } from "@phosphor-icons/react";
 import DatePicker from "react-datepicker";
 import { Controller } from "react-hook-form";
+import { cn } from "../../utils/cn";
 
 type Props = {
   control: any;
   errors: any;
   name: string;
   placeholder: string;
+  className?: string;
 };
 
-const InputDate = ({ control, errors, name, placeholder }: Props) => {
+const InputDate = ({
+  control,
+  errors,
+  name,
+  placeholder,
+  className,
+}: Props) => {
   return (
     <>
       <Controller
@@ -17,9 +25,11 @@ const InputDate = ({ control, errors, name, placeholder }: Props) => {
         control={control}
         render={({ field: { onChange, onBlur, value, ref } }) => (
           <DatePicker
-            className={`w-full border ${
-              errors && errors.startDate && "border-red-500"
-            } outline-none rounded-md px-3 py-2`}
+            className={cn(
+              "w-full border outline-none rounded-md px-3 py-2",
+              { "border-red-500": errors && errors.startDate },
+              className
+            )}
             placeholderText={placeholder}
             showIcon
             icon={<CalendarBlank className="text-slate-500" />}

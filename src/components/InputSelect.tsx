@@ -1,5 +1,6 @@
 import { Controller } from "react-hook-form";
 import Select from "react-select";
+import { cn } from "../../utils/cn";
 
 type Props = {
   register: any;
@@ -8,6 +9,7 @@ type Props = {
   name: string;
   placeholder: string;
   zipInfo: any;
+  className?: string;
 };
 
 const InputSelect = ({
@@ -17,6 +19,7 @@ const InputSelect = ({
   name,
   placeholder,
   zipInfo,
+  className,
 }: Props) => {
   return (
     <>
@@ -25,12 +28,14 @@ const InputSelect = ({
         control={control}
         render={() => (
           <Select
-            className={`w-1/2 ${
-              errors &&
-              errors[name] &&
-              !zipInfo &&
-              "border rounded-md overflow-hidden border-red-500"
-            }`}
+            className={cn(
+              "w-1/2",
+              {
+                "border rounded-md overflow-hidden border-red-500":
+                  errors && errors[name] && !zipInfo,
+              },
+              className
+            )}
             placeholder={placeholder}
             options={
               zipInfo

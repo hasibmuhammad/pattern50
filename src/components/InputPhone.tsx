@@ -1,5 +1,6 @@
 import { Warning } from "@phosphor-icons/react";
 import PhoneInput from "react-phone-input-2";
+import { cn } from "../../utils/cn";
 
 type Props = {
   register: any;
@@ -9,6 +10,7 @@ type Props = {
   // onChange: (value: string) => void;
   setValue: (name: any, value: any) => void;
   value?: string;
+  className?: string;
 };
 
 const InputPhone = ({
@@ -18,6 +20,7 @@ const InputPhone = ({
   placeholder,
   setValue,
   value,
+  className,
 }: Props) => {
   return (
     <>
@@ -28,9 +31,11 @@ const InputPhone = ({
         country={"us"}
         placeholder={placeholder}
         inputProps={{
-          className: `w-full border ${
-            errors && errors.phone && "border-red-500"
-          } rounded-md outline-none px-3 py-2 pl-14`,
+          className: cn(
+            "w-full border rounded-md outline-none px-3 py-2 pl-14",
+            { "border-red-500": errors && errors.phone },
+            className
+          ),
         }}
       />
     </>

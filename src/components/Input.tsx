@@ -1,3 +1,5 @@
+import { cn } from "../../utils/cn";
+
 type Props = {
   register: any;
   errors: any;
@@ -5,6 +7,7 @@ type Props = {
   placeholder: string;
   type: string;
   onChange?: (e: any) => void;
+  className?: string;
 };
 
 const Input = ({
@@ -14,14 +17,20 @@ const Input = ({
   placeholder,
   type,
   onChange,
+  className,
 }: Props) => {
   return (
     <>
       <input
         {...register(name)}
-        className={`${name === "zipCode" ? "w-1/2" : "w-full"} border ${
-          errors && errors[name] && "border-red-500"
-        } outline-none rounded-md px-3 py-2`}
+        className={cn(
+          "outline-none rounded-md px-3 w-full py-2 border",
+          className,
+          {
+            "w-1/2": name === "zipCode",
+            "border-red-500": errors && errors[name],
+          }
+        )}
         type={type}
         placeholder={placeholder}
         onChange={onChange}
