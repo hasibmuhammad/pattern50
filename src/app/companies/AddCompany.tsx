@@ -15,6 +15,7 @@ import FieldError from "@/components/FieldError";
 import InputSelect from "@/components/InputSelect";
 import InputDate from "@/components/InputDate";
 import Button from "@/components/button/button";
+import { cn } from "../../../utils/cn";
 
 type Props = {
   isOpen: boolean;
@@ -144,9 +145,12 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
 
   return (
     <div
-      className={`fixed inset-0 z-50 transform ${
-        isOpen ? "translate-x-0" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out`}
+      className={cn(
+        "fixed inset-0 z-50 transform transition-transform duration-300 ease-in-out translate-x-full",
+        {
+          "translate-x-0": isOpen,
+        }
+      )}
     >
       <div className="fixed right-0 top-0 bottom-0 max-w-lg rounded-lg overflow-hidden shadow-xl overflow-y-auto">
         <div>
@@ -166,7 +170,7 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
             <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
               <div className="px-10">
                 <div className="space-y-8">
-                  <div className={`flex gap-4 items-center justify-between`}>
+                  <div className="flex gap-4 items-center justify-between">
                     <label className="w-[200px] text-nowrap">
                       Company Name <span className="text-red-500">*</span>
                     </label>
@@ -229,9 +233,9 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
                   </div>
                   <div className="flex justify-between">
                     <label
-                      className={`${
-                        zipInfo ? "w-[220px]" : "w-[180px]"
-                      } text-nowrap`}
+                      className={cn("text-nowrap w-[180px]", {
+                        "w-[200px]": zipInfo,
+                      })}
                     >
                       Address <span className="text-red-500">*</span>
                     </label>

@@ -91,6 +91,7 @@ const Companies = () => {
               <Button
                 className="flex items-center gap-1"
                 onClick={handleDrawerOpen}
+                type="button"
               >
                 <PlusCircle weight="bold" size={24} />
                 Add Company

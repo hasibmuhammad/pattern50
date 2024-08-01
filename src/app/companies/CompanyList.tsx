@@ -11,6 +11,7 @@ import { CompanyInfoType } from "@/types/types";
 import axiosInstance from "../../../lib/axiosInstance";
 import EditCompany from "./EditCompany";
 import Button from "@/components/button/button";
+import { cn } from "../../../utils/cn";
 
 const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -165,9 +166,9 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
             {companies.map((company) => (
               <tr
                 key={company?._id}
-                className={` border-b ${
-                  company._id === editItemId ? "bg-blue-200" : "bg-white"
-                }`}
+                className={cn(" border-b bg-white", {
+                  "bg-blue-200": company._id === editItemId,
+                })}
               >
                 <th
                   scope="row"
@@ -226,11 +227,9 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
             >
               <button
                 onClick={() => onPageChange(currentPage)}
-                className={`mx-1 px-4 py-2 border ${
-                  page === currentPage
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-black"
-                }`}
+                className={cn("mx-1 px-4 py-2 border bg-white text-black", {
+                  "bg-blue-500 text-white": page === currentPage,
+                })}
               >
                 {page}
               </button>
