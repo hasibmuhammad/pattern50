@@ -24,9 +24,7 @@ export default function RootLayout({
         <QueryClientWrapperProvider>
           <div className="min-h-screen flex">
             <Sidebar />
-            <div className="lg:ml-64 flex-1 p-4 overflow-y-auto">
-              {children}
-            </div>
+            <div className="lg:ml-64 flex-1 overflow-y-auto">{children}</div>
           </div>
         </QueryClientWrapperProvider>
       </body>

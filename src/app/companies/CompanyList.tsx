@@ -189,7 +189,9 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 </td>
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                    <Button intent={"link"}>Details</Button>
+                    <Link href={`/company/${company?._id}`}>
+                      <Button intent={"link"}>Details</Button>
+                    </Link>
                     {/* <Button
                       intent={"link"}
                       onClick={() => handleEditClick(company?._id)}

@@ -25,7 +25,7 @@ type Props = {
   isOpen: boolean;
   editItemId: string;
   onClose: () => void;
-  onUpdate: () => void;
+  onUpdate?: () => void;
 };
 
 type ZipInfo = {
@@ -212,7 +212,7 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
       onSuccess: (data) => {
         onClose();
         refetch();
-        onUpdate();
+        if (onUpdate) onUpdate();
       },
       onError: (error: any) => {
         if (
