@@ -159,7 +159,7 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
               </th>
               <th
                 scope="col"
-                className="sticky bg-white right-0 px-6 py-3 text-center"
+                className="sticky bg-white md:bg-gray-50 right-0 px-6 py-3 text-center"
               >
                 Action
               </th>
@@ -190,12 +190,12 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
                     <Button intent={"link"}>Details</Button>
-                    <Button
+                    {/* <Button
                       intent={"link"}
                       onClick={() => handleEditClick(company?._id)}
                     >
                       Edit
-                    </Button>
+                    </Button> */}
                   </div>
                 </td>
               </tr>
@@ -230,14 +230,12 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 searchTerm && `&query=${searchTerm}`
               }`}
             >
-              <button
+              <Button
                 onClick={() => onPageChange(currentPage)}
-                className={cn("mx-1 px-4 py-2 border bg-white text-black", {
-                  "bg-blue-500 text-white": page === currentPage,
-                })}
+                state={page === currentPage ? "active" : "inactive"}
               >
                 {page}
-              </button>
+              </Button>
             </Link>
           )
         )}
