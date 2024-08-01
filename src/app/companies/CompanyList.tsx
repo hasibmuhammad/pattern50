@@ -10,6 +10,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { CompanyInfoType } from "@/types/types";
 import axiosInstance from "../../../lib/axiosInstance";
 import EditCompany from "./EditCompany";
+import Button from "@/components/button/button";
 
 const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -136,7 +137,7 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
 
   return (
     <div className="relative sm:rounded-lg">
-      <div className="w-full overflow-x-scroll md:overflow-hidden">
+      <div className="w-full overflow-x-scroll lg:overflow-hidden">
         <table className="w-full text-sm text-left">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
@@ -181,15 +182,15 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 </td>
                 <td className="px-6 py-4">{company?.productsCount}</td>
                 <td className="px-6 py-4 space-x-4">
-                  <button className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                    Details
-                  </button>
-                  <button
-                    onClick={() => handleEditClick(company?._id)}
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                  >
-                    Edit
-                  </button>
+                  <div>
+                    <Button intent={"link"}>Details</Button>
+                    <Button
+                      intent={"link"}
+                      onClick={() => handleEditClick(company?._id)}
+                    >
+                      Edit
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}

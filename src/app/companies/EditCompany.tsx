@@ -18,6 +18,7 @@ import FieldError from "@/components/FieldError";
 import Input from "@/components/Input";
 import InputSelect from "@/components/InputSelect";
 import InputPhone from "@/components/InputPhone";
+import Button from "@/components/button/button";
 
 type Props = {
   isOpen: boolean;
@@ -461,23 +462,16 @@ const EditCompany = ({ isOpen, editItemId, onClose, onUpdate }: Props) => {
                   </div>
 
                   <div className="mt-20 py-5 pr-10 bg-slate-50 flex gap-5 justify-end">
-                    <button
-                      onClick={onClose}
-                      type="button"
-                      className="bg-white border-2 rounded-md font-semibold px-3 py-2"
-                    >
+                    <Button onClick={onClose} intent={"secondary"}>
                       Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="bg-blue-600 rounded-md font-semibold px-3 py-2 text-white"
-                    >
+                    </Button>
+                    <Button type="submit">
                       {updateCompany.isPending
                         ? "Loading..."
                         : updateCompany.isSuccess
                         ? "Updated"
                         : "Update"}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </>

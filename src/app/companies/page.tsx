@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
 import AddCompany from "./AddCompany";
 import Sidebar from "@/components/Sidebar";
+import Button from "@/components/button/button";
 
 type SearchForm = {
   term: string;
@@ -83,21 +84,17 @@ const Companies = () => {
                     defaultValue={searchTerm}
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="bg-slate-100 font-normal rounded-md px-4"
-                >
+                <Button intent={"secondary"} type="submit">
                   Search
-                </button>
+                </Button>
               </div>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-nowrap bg-blue-500 px-4 py-2 rounded-md text-white"
+              <Button
+                className="flex items-center gap-1"
                 onClick={handleDrawerOpen}
               >
                 <PlusCircle weight="bold" size={24} />
                 Add Company
-              </button>
+              </Button>
             </div>
           </form>
         </div>

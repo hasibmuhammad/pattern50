@@ -14,6 +14,7 @@ import InputPhone from "@/components/InputPhone";
 import FieldError from "@/components/FieldError";
 import InputSelect from "@/components/InputSelect";
 import InputDate from "@/components/InputDate";
+import Button from "@/components/button/button";
 
 type Props = {
   isOpen: boolean;
@@ -355,19 +356,10 @@ const AddCompany = ({ isOpen, onClose }: Props) => {
               </div>
 
               <div className="py-5 pr-10 bg-slate-50 flex gap-5 justify-end">
-                <button
-                  onClick={onClose}
-                  type="button"
-                  className="bg-white border-2 rounded-md font-semibold px-3 py-2"
-                >
+                <Button intent={"secondary"} onClick={onClose}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 rounded-md font-semibold px-3 py-2 text-white"
-                >
-                  Create
-                </button>
+                </Button>
+                <Button>Create</Button>
               </div>
             </form>
           </div>
