@@ -154,10 +154,13 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
               <th scope="col" className="px-6 py-3">
                 Location
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="text-center px-6 py-3">
                 Products
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th
+                scope="col"
+                className="sticky bg-white right-0 px-6 py-3 text-center"
+              >
                 Action
               </th>
             </tr>
@@ -181,9 +184,11 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 <td className="px-6 py-4">
                   {company?.addresses?.city}, {company?.addresses?.country}
                 </td>
-                <td className="px-6 py-4">{company?.productsCount}</td>
-                <td className="px-6 py-4 space-x-4">
-                  <div>
+                <td className="text-center px-6 py-4">
+                  {company?.productsCount}
+                </td>
+                <td className="sticky right-0 bg-white">
+                  <div className="flex items-center justify-center px-6 py-4 space-x-4">
                     <Button intent={"link"}>Details</Button>
                     <Button
                       intent={"link"}
