@@ -45,6 +45,12 @@ const CompanyDetail = () => {
     refetchOnWindowFocus: false,
   });
 
+  const code = companyData?.phone.slice(0, 2);
+  const firstThree = companyData?.phone.slice(2, 5);
+  const secondThree = companyData?.phone.slice(5, 8);
+  const lastFour = companyData?.phone.slice(8);
+  const formatedPhoneNumber = `${code} (${firstThree}) ${secondThree}-${lastFour}`;
+
   const formatDate = (isoString: string) => {
     if (!isoString) return "Invalid Date";
 
@@ -143,7 +149,7 @@ const CompanyDetail = () => {
                     <label className="flex justify-between items-center w-[165px]">
                       Phone Number <span>:</span>
                     </label>
-                    <p>{companyData?.phone}</p>
+                    <p>{formatedPhoneNumber}</p>
                   </div>
                   <div className="flex gap-6 text-lg font-medium text-slate-400">
                     <label className="flex justify-between items-center w-[165px]">
