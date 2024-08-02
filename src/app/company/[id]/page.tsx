@@ -7,8 +7,9 @@ import React, { useState } from "react";
 import axiosInstance from "../../../../lib/axiosInstance";
 import Loader from "@/components/Loader";
 import Button from "@/components/button/button";
-import { PencilSimpleLine } from "@phosphor-icons/react";
+import { List, PencilSimpleLine } from "@phosphor-icons/react";
 import EditCompany from "@/app/companies/EditCompany";
+import Sidebar from "@/components/Sidebar";
 
 const CompanyDetail = () => {
   const { id } = useParams();
@@ -70,8 +71,26 @@ const CompanyDetail = () => {
     return `${day} ${month} ${year}`;
   };
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
+
   return (
     <div className="relative">
+      <div className="px-10 visible lg:invisible py-5 lg:py-0">
+        <List
+          onClick={handleSidebarVisibility}
+          className="cursor-pointer"
+          size={32}
+        />
+      </div>
+
+      {/* Sidebar Component */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        handleSidebarVisibility={handleSidebarVisibility}
+      />
+
       <div className="bg-slate-50 p-10">
         <h1 className="font-bold text-3xl">Company Profile</h1>
         <p className="text-slate-400 font-medium">
