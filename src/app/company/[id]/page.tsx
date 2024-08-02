@@ -85,11 +85,11 @@ const CompanyDetail = () => {
         </div>
       )}
 
-      {companyData && isFetched && (
+      {companyData && isFetched && !isFetching && (
         <div className="my-5 px-10 space-y-16">
           {/* Company Details */}
           <div>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-center">
               <h2 className="font-bold text-2xl">
                 {companyData?.name} Details
               </h2>
@@ -104,8 +104,8 @@ const CompanyDetail = () => {
             </div>
 
             <div className="p-5">
-              <div className="flex flex-col md:flex-row justify-between items-center">
-                <div className="md:space-y-5">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-2 md:space-y-0">
+                <div className="space-y-2 md:space-y-5">
                   <div className="flex gap-6 text-lg font-medium text-slate-400">
                     <label className="flex justify-between items-center w-[165px]">
                       Company Name <span>:</span>
@@ -119,7 +119,7 @@ const CompanyDetail = () => {
                     <p>{companyData?.email}</p>
                   </div>
                 </div>
-                <div className="md:space-y-5">
+                <div className="space-y-2 md:space-y-5">
                   <div className="flex gap-6 text-lg font-medium text-slate-400">
                     <label className="flex justify-between items-center w-[165px]">
                       Phone Number <span>:</span>
@@ -159,7 +159,7 @@ const CompanyDetail = () => {
           <div>
             <h2 className="font-bold text-2xl">Billing Details</h2>
             <div className="p-5">
-              <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                 <div className="flex gap-6 text-lg font-medium text-slate-400">
                   <label className="flex justify-between items-center w-[165px]">
                     Billing Start Date <span>:</span>
