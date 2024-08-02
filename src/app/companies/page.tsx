@@ -11,22 +11,46 @@ import Button from "@/components/button/button";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Input from "@/components/Input";
+import InputSelectMulti from "@/components/InputSelectMulti";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "../../../lib/axiosInstance";
+import { AxiosResponse } from "axios";
+import { CompanyInfoType } from "@/types/types";
 
 type SearchForm = {
   term: string;
+  stateFilter: any;
 };
 
 const CompanySearchSchema = z.object({
   term: z
     .string({ required_error: "Search term required!" })
-    .min(2, { message: "Search term should be more than 2" }),
+    .min(2, { message: "Search term should be more than 2 characters." }),
 });
 
 type CompanySearchSchema = z.infer<typeof CompanySearchSchema>;
 
 const Companies = () => {
+  // Get all states from API
+  const { data: states } = useQuery({
+    queryKey: ["states"],
+    queryFn: async () => {
+      const response = await axiosInstance.get("/company/states");
+
+      let states: any = [];
+      if (response.data) {
+        response.data.map((state: any) =>
+          states.push({ label: state.name, value: state.name })
+        );
+      }
+
+      return states;
+    },
+    refetchOnWindowFocus: false,
+  });
+
   const {
+    control,
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
@@ -34,22 +58,27 @@ const Companies = () => {
   } = useForm<SearchForm>({ resolver: zodResolver(CompanySearchSchema) });
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [stateFilter, setStateFilter] = useState<string[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const query = searchParams.get("query");
-    if (query) {
-      setSearchTerm(query);
-    } else {
-      setSearchTerm("");
-    }
+    const stateQuery = searchParams.get("state");
 
-    return () => setSearchTerm("");
+    query ? setSearchTerm(query) : setSearchTerm("");
+    stateQuery ? setStateFilter(stateQuery.split(",")) : setStateFilter([]);
+
+    return () => {
+      setSearchTerm("");
+      setStateFilter([]);
+    };
   }, [searchParams]);
 
   const search: SubmitHandler<SearchForm> = (data) => {
-    router.push(`/companies?page=1&query=${data.term}`);
+    router.push(
+      `/companies?page=1&query=${data.term}&state=${stateFilter.join(",")}`
+    );
   };
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -95,20 +124,21 @@ const Companies = () => {
                     placeholder="Search by name, phone, email, location"
                     defaultValue={searchTerm}
                   />
-
-                  {/* <Input
-                    register={register}
-                    errors={errors}
-                    name="term"
-                    placeholder="Please write sometihng to search..."
-                    className="px-10"
-                    type="text"
-                    defaultValue={searchTerm}
-                  /> */}
                 </div>
                 <Button intent={"secondary"} type="submit">
                   Search
                 </Button>
+
+                <InputSelectMulti
+                  control={control}
+                  name="stateFilter"
+                  placeholder="State"
+                  register={register}
+                  className="w-1/2 basic-multi-select"
+                  options={states}
+                  setStateFilter={setStateFilter}
+                  value={stateFilter}
+                />
               </div>
               <Button
                 className="flex items-center gap-1"
@@ -127,7 +157,7 @@ const Companies = () => {
           </div>
         ) : (
           <div className="relative pt-5">
-            <CompanyList searchTerm={searchTerm} />
+            <CompanyList initialFilter={stateFilter} searchTerm={searchTerm} />
           </div>
         )}
       </div>

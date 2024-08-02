@@ -5,10 +5,10 @@ import { cn } from "../../utils/cn";
 type Props = {
   register: any;
   control: any;
-  errors: any;
+  errors?: any;
   name: string;
   placeholder: string;
-  zipInfo: any;
+  zipInfo?: any;
   className?: string;
 };
 

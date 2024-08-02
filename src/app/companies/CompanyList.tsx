@@ -13,10 +13,18 @@ import EditCompany from "./EditCompany";
 import Button from "@/components/button/button";
 import { cn } from "../../../utils/cn";
 
-const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
+const CompanyList = ({
+  searchTerm,
+  initialFilter,
+}: {
+  searchTerm: string;
+  initialFilter: string[];
+}) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [size, setSize] = useState(10);
+  const [stateFilter, setStateFilter] = useState<string[]>(initialFilter);
 
   // Edit company things
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -36,20 +44,39 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
 
   useEffect(() => {
     const page = parseInt(searchParams.get("page") || "1", 10);
+    const size = parseInt(searchParams.get("size") || "10", 10);
+    const state = searchParams.get("state") || "";
     setCurrentPage(page);
+    setSize(size);
+    setStateFilter(state ? state.split(",") : []);
   }, [searchParams]);
 
-  // fetchcompanies function
-  const fetchCompanies = async (page: number, searchTerm: string) => {
-    const query = searchTerm ? `&query=${searchTerm}` : "";
+  useEffect(() => {
+    router.push(
+      `/companies?page=${currentPage}&size=${size}&query=${
+        searchTerm || ""
+      }&state=${stateFilter.join(",") || ""}`
+    );
+  }, [currentPage, size, searchTerm, stateFilter]);
 
+  // fetchcompanies function
+  const fetchCompanies = async (
+    page: number,
+    searchTerm: string,
+    stateFilter: string[]
+  ) => {
     try {
       const accessToken = localStorage.getItem("access-token");
       const refreshToken = localStorage.getItem("refresh-token");
 
       if (refreshToken) {
         const res: AxiosResponse<{ data: CompanyInfoType[]; count: number }> =
-          await axiosInstance.get(`/company/list?page=${page}&size=10${query}`);
+          await axiosInstance.get(
+            `/company/list?page=${page}&size=${size}&query=${
+              searchTerm || ""
+            }&state=${stateFilter.join(",") || ""}`
+          );
+
         return res.data;
       } else {
         router.push("/login");
@@ -71,15 +98,16 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
       "companies",
       currentPage ? currentPage : 1,
       searchTerm ? searchTerm : "",
+      stateFilter,
     ],
-    queryFn: () => fetchCompanies(currentPage, searchTerm),
+    queryFn: () => fetchCompanies(currentPage, searchTerm, stateFilter),
     refetchOnWindowFocus: false,
   });
 
   const handleRefetchOnUpdate = () => refetch();
 
   const companies = data?.data || [];
-  const totalPage = data ? Math.ceil(data.count / 10) : 1;
+  const totalPage = data ? Math.ceil(data.count / size) : 1;
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -182,7 +210,7 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
                 <td className="px-6 py-4">{company?.phone}</td>
                 <td className="px-6 py-4">{company?.email}</td>
                 <td className="px-6 py-4">
-                  {company?.addresses?.city}, {company?.addresses?.country}
+                  {company?.addresses?.state}, {company?.addresses?.country}
                 </td>
                 <td className="text-center px-6 py-4">
                   {company?.productsCount}
@@ -210,9 +238,9 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
           onClick={() => {
             onPageChange(currentPage - 1);
             router.push(
-              `/companies?page=${currentPage - 1}${
+              `/companies?page=${currentPage - 1}&size=${size}${
                 searchTerm && `&query=${searchTerm}`
-              }`
+              }&state=${stateFilter.join(",") || ""}`
             );
           }}
           disabled={currentPage <= 1}
@@ -228,9 +256,9 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
           ) : (
             <Link
               key={page}
-              href={`/companies?page=${page}${
+              href={`/companies?page=${page}&size=${size}${
                 searchTerm && `&query=${searchTerm}`
-              }`}
+              }&state=${stateFilter.join(",") || ""}`}
             >
               <Button
                 onClick={() => onPageChange(currentPage)}
@@ -245,9 +273,9 @@ const CompanyList = ({ searchTerm }: { searchTerm: string }) => {
           onClick={() => {
             onPageChange(currentPage + 1);
             router.push(
-              `/companies?page=${currentPage + 1}${
+              `/companies?page=${currentPage + 1}&size=${size}${
                 searchTerm && `&query=${searchTerm}`
-              }`
+              }&state=${stateFilter.join(",") || ""}`
             );
           }}
           disabled={currentPage >= totalPage}

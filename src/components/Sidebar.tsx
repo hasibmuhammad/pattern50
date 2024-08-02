@@ -104,7 +104,7 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
             >
               <Link
                 className="flex gap-1 items-center"
-                href={"/companies?page=1"}
+                href={"/companies?page=1&size=10"}
               >
                 {" "}
                 <Buildings /> Companies
