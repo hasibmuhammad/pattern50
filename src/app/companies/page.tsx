@@ -87,16 +87,16 @@ const Companies = () => {
               <div className="w-full flex gap-2">
                 <div className="w-full relative flex justify-center items-center">
                   <MagnifyingGlass className="absolute left-2" />
-                  {/* <input
+                  <input
                     {...register("term", {
                       required: "Please write something to search...",
                     })}
                     className="border outline-none w-full px-10 py-2 rounded-md"
                     placeholder="Search by name, phone, email, location"
                     defaultValue={searchTerm}
-                  /> */}
+                  />
 
-                  <Input
+                  {/* <Input
                     register={register}
                     errors={errors}
                     name="term"
@@ -104,7 +104,7 @@ const Companies = () => {
                     className="px-10"
                     type="text"
                     defaultValue={searchTerm}
-                  />
+                  /> */}
                 </div>
                 <Button intent={"secondary"} type="submit">
                   Search

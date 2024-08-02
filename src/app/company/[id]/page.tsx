@@ -164,13 +164,34 @@ const CompanyDetail = () => {
           {/* Master Account Info */}
           <div>
             <h2 className="font-bold text-2xl">Company Master Account</h2>
-            <div className="p-5">
+            <div className="p-5 space-y-4">
               <div className="flex gap-6 text-lg font-medium text-slate-400">
                 <label className="flex justify-between items-center w-[165px]">
                   Master Email <span>:</span>
                 </label>
-                <p>{companyData?.masterEmail}</p>
+                <div className="flex items-center gap-2">
+                  <p>{companyData?.masterEmail}</p>
+                  <Button size={"small"}>Current</Button>
+                </div>
               </div>
+              {companyData?.activityLogs &&
+                companyData?.activityLogs.toReversed().map((log) => (
+                  <div className="flex gap-6 text-lg font-medium text-slate-400">
+                    <label className="flex justify-between items-center w-[165px]">
+                      Master Email <span>:</span>
+                    </label>
+                    <div className="flex flex-col md:flex-row items-center gap-2">
+                      <p>{log?.prevValue}</p>
+                      <Button
+                        size={"small"}
+                        intent={"secondary"}
+                        className="bg-slate-100 border-none"
+                      >
+                        Till {formatDate(log?.date)}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
 

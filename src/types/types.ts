@@ -107,5 +107,13 @@ export type CompanyInfoType = {
     startDate: string;
     endDate: string;
   };
+
+  activityLogs: {
+    fieldName: string;
+    prevValue: string;
+    currValue: string;
+    created_by: string;
+    date: string;
+  }[];
   productsCount: number;
 };
