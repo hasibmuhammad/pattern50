@@ -16,46 +16,31 @@ import Image from "next/image";
 const Tools = ({
   searchTerm,
   activeTab,
+  page,
+  setPage,
 }: {
   searchTerm: string;
   activeTab: string;
+  page: number;
+  setPage: (page: number) => void;
 }) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [size, setSize] = useState(10);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [size, setSize] = useState(10);
-
-  // Edit company things
-  //   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  //   const [editItemId, setEditItemId] = useState("");
-  //   const handleDrawerOpen = () => setIsDrawerOpen(true);
-
-  //   const handleDrawerClose = () => {
-  //     setIsDrawerOpen(false);
-  //     setEditItemId("");
-  //   };
-
-  //   // handleEdit Click
-  //   const handleEditClick = (companyId: string) => {
-  //     setEditItemId(companyId);
-  //     handleDrawerOpen();
-  //   };
 
   useEffect(() => {
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const size = parseInt(searchParams.get("size") || "10", 10);
-    const state = searchParams.get("state") || "";
-    setCurrentPage(page);
-    setSize(size);
-  }, [searchParams]);
+    const pageParam = parseInt(searchParams.get("page") || "1", 10);
+    const sizeParam = parseInt(searchParams.get("size") || "10", 10);
+    setSize(sizeParam);
+    setPage(pageParam);
+  }, [searchParams, setPage]);
 
   useEffect(() => {
     router.push(
-      `/technologies?page=${currentPage}&size=${size}&query=${searchTerm || ""}`
+      `/technologies?page=${page}&size=${size}&query=${searchTerm || ""}`
     );
-  }, [currentPage, size, searchTerm]);
+  }, [page, size, searchTerm, router]);
 
-  // fetchTools function
   const fetchTools = async (page: number, searchTerm: string) => {
     try {
       const accessToken = localStorage.getItem("access-token");
@@ -88,40 +73,29 @@ const Tools = ({
   };
 
   const { data, isFetching, error, refetch } = useQuery({
-    queryKey: [
-      "technologyTools",
-      currentPage ? currentPage : 1,
-      searchTerm ? searchTerm : "",
-      activeTab,
-    ],
-    queryFn: () => fetchTools(currentPage, searchTerm),
+    queryKey: ["technologyTools", page, searchTerm, activeTab],
+    queryFn: () => fetchTools(page, searchTerm),
     refetchOnWindowFocus: false,
   });
 
-  const handleRefetchOnUpdate = () => refetch();
-
   const technologyTools = data?.data || [];
-
   const totalPage = data ? Math.ceil(data.count / size) : 1;
 
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
+  const onPageChange = (newPage: number) => {
+    setPage(newPage);
     refetch();
   };
 
   const getPagination = () => {
     const pagination = [];
     const maxPagesToShow = 3;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(
-      totalPage,
-      currentPage + Math.floor(maxPagesToShow / 2)
-    );
+    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPage, page + Math.floor(maxPagesToShow / 2));
 
     if (endPage - startPage + 1 < maxPagesToShow) {
-      if (currentPage < Math.ceil(maxPagesToShow / 2)) {
+      if (page < Math.ceil(maxPagesToShow / 2)) {
         endPage = Math.min(maxPagesToShow, totalPage);
-      } else if (currentPage > totalPage - Math.floor(maxPagesToShow / 2)) {
+      } else if (page > totalPage - Math.floor(maxPagesToShow / 2)) {
         startPage = Math.max(totalPage - maxPagesToShow + 1, 1);
       }
     }
@@ -205,7 +179,6 @@ const Tools = ({
                     {tool?.name}
                   </span>
                 </th>
-
                 <td className="px-6 py-4">{tool?.type}</td>
                 <td className="px-6 py-4">{tool?.website}</td>
                 <td className="sticky right-0 bg-white">
@@ -218,67 +191,50 @@ const Tools = ({
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-center md:justify-end my-10 px-10 lg:px-0">
-        <button
-          onClick={() => {
-            onPageChange(currentPage - 1);
-            router.push(
-              `/technologies?page=${currentPage - 1}&size=${size}${
-                searchTerm && `&query=${searchTerm}`
-              }`
-            );
-          }}
-          disabled={currentPage <= 1}
-          className="mx-1 px-4 bg-white text-black disabled:opacity-50"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        {getPagination().map((page) =>
-          page === "..." ? (
-            <span key={page} className="mx-1 px-4 py-2">
-              ...
-            </span>
-          ) : (
-            <Link
-              key={page}
-              href={`/technologies?page=${page}&size=${size}${
-                searchTerm && `&query=${searchTerm}`
-              }`}
-            >
-              <Button
-                onClick={() => onPageChange(currentPage)}
-                state={page === currentPage ? "active" : "inactive"}
+      <div className="my-10 px-10 lg:px-0 flex items-center justify-between">
+        <div>
+          <p className="text-slate-400 italic">
+            Showing {technologyTools.length} out of {data?.count}
+          </p>
+        </div>
+        <div className="flex items-center justify-center md:justify-end">
+          <button
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1}
+            className="mx-1 px-4 bg-white text-black disabled:opacity-50"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          {getPagination().map((pageNum) =>
+            pageNum === "..." ? (
+              <span key={pageNum} className="mx-1 px-4 py-2">
+                ...
+              </span>
+            ) : (
+              <Link
+                key={pageNum}
+                href={`/technologies?page=${pageNum}&size=${size}${
+                  searchTerm && `&query=${searchTerm}`
+                }`}
               >
-                {page}
-              </Button>
-            </Link>
-          )
-        )}
-        <button
-          onClick={() => {
-            onPageChange(currentPage + 1);
-            router.push(
-              `/technologies?page=${currentPage + 1}&size=${size}${
-                searchTerm && `&query=${searchTerm}`
-              }`
-            );
-          }}
-          disabled={currentPage >= totalPage}
-          className="mx-1 px-4 bg-white text-black disabled:opacity-50"
-        >
-          <ArrowRight size={24} />
-        </button>
+                <Button
+                  onClick={() => onPageChange(+pageNum)}
+                  state={pageNum === page ? "active" : "inactive"}
+                >
+                  {pageNum}
+                </Button>
+              </Link>
+            )
+          )}
+          <button
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPage}
+            className="mx-1 px-4 bg-white text-black disabled:opacity-50"
+          >
+            <ArrowRight size={24} />
+          </button>
+        </div>
       </div>
-
-      {/* Edit Company Drawer */}
-      {/* {isDrawerOpen && (
-        <EditCompany
-          isOpen={isDrawerOpen}
-          editItemId={editItemId}
-          onClose={handleDrawerClose}
-          onUpdate={handleRefetchOnUpdate}
-        />
-      )} */}
     </div>
   );
 };

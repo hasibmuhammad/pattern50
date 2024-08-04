@@ -7,14 +7,13 @@ import axiosInstance from "../../../lib/axiosInstance";
 import { AxiosResponse } from "axios";
 import { TechnologyCategoryType } from "@/types/types";
 import Loader from "@/components/Loader";
-import { usePathname, useSearchParams } from "next/navigation";
-import { cn } from "../../../utils/cn";
+import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/router";
 import Button from "@/components/button/button";
 import Tools from "./Tools";
+import TechnologyTabs from "./TechnologyTabs"; // import the new component
 
 type SearchForm = {
   term: string;
@@ -31,12 +30,15 @@ const Technologies = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("66227d00aae1e76863377a94");
+  const [page, setPage] = useState(1); // New state to track the page
 
   const handleDrawerOpen = () => setIsDrawerOpen(true);
   const handleDrawerClose = () => setIsDrawerOpen(false);
   const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
+
   const handleActiveTab = (id: string) => {
     setActiveTab(id);
+    setPage(1); // Reset to page 1 when a new category is selected
   };
 
   const {
@@ -56,7 +58,6 @@ const Technologies = () => {
   const techCategories = categories?.data || [];
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  // const router = useRouter();
   const searchParams = useSearchParams();
 
   const {
@@ -80,6 +81,7 @@ const Technologies = () => {
 
   const search: SubmitHandler<SearchForm> = (data) => {
     setSearchTerm(data.term);
+    setPage(1); // Reset to page 1 when a new search term is entered
   };
 
   return (
@@ -110,25 +112,11 @@ const Technologies = () => {
         </div>
       ) : (
         <div className="w-full my-10">
-          <div className="border-b-2 border-gray-200 relative">
-            <ul className="flex justify-around">
-              {techCategories.map((category) => (
-                <li
-                  onClick={() => handleActiveTab(category._id)}
-                  className={cn(
-                    "flex-1 text-center text-slate-400 font-bold pb-2 cursor-pointer relative",
-                    {
-                      "after:absolute after:bottom-[-2px] after:left-0 after:right-0 after:h-[2px] after:bg-blue-500 text-blue-500 font-bold":
-                        activeTab === category._id,
-                    }
-                  )}
-                  key={category._id}
-                >
-                  {category.name}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <TechnologyTabs
+            techCategories={techCategories}
+            activeTab={activeTab}
+            handleActiveTab={handleActiveTab}
+          />
 
           <div className="my-10">
             <form onSubmit={handleSubmit(search)}>
@@ -165,7 +153,12 @@ const Technologies = () => {
             </div>
           ) : (
             <div className="relative pt-5">
-              <Tools searchTerm={searchTerm} activeTab={activeTab} />
+              <Tools
+                searchTerm={searchTerm}
+                activeTab={activeTab}
+                page={page}
+                setPage={setPage}
+              />
             </div>
           )}
         </div>

@@ -233,56 +233,63 @@ const CompanyList = ({
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-center md:justify-end my-10 px-10 lg:px-0">
-        <button
-          onClick={() => {
-            onPageChange(currentPage - 1);
-            router.push(
-              `/companies?page=${currentPage - 1}&size=${size}${
-                searchTerm && `&query=${searchTerm}`
-              }&state=${stateFilter.join(",") || ""}`
-            );
-          }}
-          disabled={currentPage <= 1}
-          className="mx-1 px-4 bg-white text-black disabled:opacity-50"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        {getPagination().map((page) =>
-          page === "..." ? (
-            <span key={page} className="mx-1 px-4 py-2">
-              ...
-            </span>
-          ) : (
-            <Link
-              key={page}
-              href={`/companies?page=${page}&size=${size}${
-                searchTerm && `&query=${searchTerm}`
-              }&state=${stateFilter.join(",") || ""}`}
-            >
-              <Button
-                onClick={() => onPageChange(currentPage)}
-                state={page === currentPage ? "active" : "inactive"}
+      <div className="flex justify-between items-center my-10 px-10 lg:px-0">
+        <div>
+          <p className="text-slate-400 italic">
+            Showing {companies.length} out of {data?.count}
+          </p>
+        </div>
+        <div className="flex items-center justify-center md:justify-end">
+          <button
+            onClick={() => {
+              onPageChange(currentPage - 1);
+              router.push(
+                `/companies?page=${currentPage - 1}&size=${size}${
+                  searchTerm && `&query=${searchTerm}`
+                }&state=${stateFilter.join(",") || ""}`
+              );
+            }}
+            disabled={currentPage <= 1}
+            className="mx-1 px-4 bg-white text-black disabled:opacity-50"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          {getPagination().map((page) =>
+            page === "..." ? (
+              <span key={page} className="mx-1 px-4 py-2">
+                ...
+              </span>
+            ) : (
+              <Link
+                key={page}
+                href={`/companies?page=${page}&size=${size}${
+                  searchTerm && `&query=${searchTerm}`
+                }&state=${stateFilter.join(",") || ""}`}
               >
-                {page}
-              </Button>
-            </Link>
-          )
-        )}
-        <button
-          onClick={() => {
-            onPageChange(currentPage + 1);
-            router.push(
-              `/companies?page=${currentPage + 1}&size=${size}${
-                searchTerm && `&query=${searchTerm}`
-              }&state=${stateFilter.join(",") || ""}`
-            );
-          }}
-          disabled={currentPage >= totalPage}
-          className="mx-1 px-4 bg-white text-black disabled:opacity-50"
-        >
-          <ArrowRight size={24} />
-        </button>
+                <Button
+                  onClick={() => onPageChange(currentPage)}
+                  state={page === currentPage ? "active" : "inactive"}
+                >
+                  {page}
+                </Button>
+              </Link>
+            )
+          )}
+          <button
+            onClick={() => {
+              onPageChange(currentPage + 1);
+              router.push(
+                `/companies?page=${currentPage + 1}&size=${size}${
+                  searchTerm && `&query=${searchTerm}`
+                }&state=${stateFilter.join(",") || ""}`
+              );
+            }}
+            disabled={currentPage >= totalPage}
+            className="mx-1 px-4 bg-white text-black disabled:opacity-50"
+          >
+            <ArrowRight size={24} />
+          </button>
+        </div>
       </div>
 
       {/* Edit Company Drawer */}
