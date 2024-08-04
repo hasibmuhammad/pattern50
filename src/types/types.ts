@@ -119,14 +119,20 @@ export type CompanyInfoType = {
 };
 
 export type TechnologyCategoryType = {
-  data: {
-    _id: string;
-    created_by: string;
-    name: string;
-    status: string;
-    created_at: string;
-    updated_at: string;
-    __v: number;
-  }[];
+  _id: string;
+  created_by: string;
+  name: string;
+  website: string;
+  logo: string;
+  logoKey: string;
+  logoName: string;
+  status: string;
+  categoryId: string;
+  typeId: string;
+  clientId: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  type: string;
   count: number;
 };
