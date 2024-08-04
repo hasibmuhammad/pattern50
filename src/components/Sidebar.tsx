@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Buildings,
   CircleNotch,
+  Link as LinkIcon,
   HouseSimple,
   SignOut,
   X,
@@ -108,6 +109,18 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
               >
                 {" "}
                 <Buildings /> Companies
+              </Link>
+            </li>
+            <li
+              className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
+                pathname === "/technologies"
+                  ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
+                  : ""
+              }`}
+            >
+              <Link className="flex gap-1 items-center" href={"/technologies"}>
+                {" "}
+                <LinkIcon /> Technologies
               </Link>
             </li>
             {isLoading ? (

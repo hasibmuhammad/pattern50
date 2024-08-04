@@ -117,3 +117,16 @@ export type CompanyInfoType = {
   }[];
   productsCount: number;
 };
+
+export type TechnologyCategoryType = {
+  data: {
+    _id: string;
+    created_by: string;
+    name: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  }[];
+  count: number;
+};

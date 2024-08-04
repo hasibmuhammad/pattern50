@@ -91,11 +91,6 @@ const Companies = () => {
 
   const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
 
-  useEffect(() => {
-    console.log("searchTerm: ", searchTerm);
-    console.log("stateFilter: ", stateFilter);
-  }, [searchTerm, stateFilter]);
-
   return (
     <div className="p-5 relative w-full lg:w-[78vw]">
       <div className="visible lg:invisible py-5 lg:py-0">
