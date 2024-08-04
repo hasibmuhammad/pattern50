@@ -15,36 +15,28 @@ import InputSelectMulti from "@/components/InputSelectMulti";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../lib/axiosInstance";
 import { AxiosResponse } from "axios";
-import { CompanyInfoType } from "@/types/types";
 
 type SearchForm = {
   term: string;
-  stateFilter: any;
+  stateFilter: string[];
 };
 
 const CompanySearchSchema = z.object({
   term: z
     .string({ required_error: "Search term required!" })
     .min(2, { message: "Search term should be more than 2 characters." }),
+  stateFilter: z.array(z.string()).optional(),
 });
 
-type CompanySearchSchema = z.infer<typeof CompanySearchSchema>;
-
 const Companies = () => {
-  // Get all states from API
   const { data: states } = useQuery({
     queryKey: ["states"],
     queryFn: async () => {
       const response = await axiosInstance.get("/company/states");
-
-      let states: any = [];
-      if (response.data) {
-        response.data.map((state: any) =>
-          states.push({ label: state.name, value: state.name })
-        );
-      }
-
-      return states;
+      return response.data.map((state: any) => ({
+        label: state.name,
+        value: state.name,
+      }));
     },
     refetchOnWindowFocus: false,
   });
@@ -53,11 +45,11 @@ const Companies = () => {
     control,
     handleSubmit,
     register,
+    setValue,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<SearchForm>({ resolver: zodResolver(CompanySearchSchema) });
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [stateFilter, setStateFilter] = useState<string[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -66,16 +58,25 @@ const Companies = () => {
     const query = searchParams.get("query");
     const stateQuery = searchParams.get("state");
 
-    query ? setSearchTerm(query) : setSearchTerm("");
-    stateQuery ? setStateFilter(stateQuery.split(",")) : setStateFilter([]);
-
-    return () => {
+    if (query) {
+      setSearchTerm(query);
+      setValue("term", query);
+    } else {
       setSearchTerm("");
+    }
+
+    if (stateQuery) {
+      const stateArray = stateQuery.split(",");
+      setStateFilter(stateArray);
+      setValue("stateFilter", stateArray);
+    } else {
       setStateFilter([]);
-    };
-  }, [searchParams]);
+    }
+  }, [searchParams, setValue]);
 
   const search: SubmitHandler<SearchForm> = (data) => {
+    setSearchTerm(data.term);
+
     router.push(
       `/companies?page=1&query=${data.term}&state=${stateFilter.join(",")}`
     );
@@ -89,6 +90,11 @@ const Companies = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
+
+  useEffect(() => {
+    console.log("searchTerm: ", searchTerm);
+    console.log("stateFilter: ", stateFilter);
+  }, [searchTerm, stateFilter]);
 
   return (
     <div className="p-5 relative w-full lg:w-[78vw]">
@@ -117,12 +123,11 @@ const Companies = () => {
                 <div className="w-full relative flex justify-center items-center">
                   <MagnifyingGlass className="absolute left-2" />
                   <input
-                    {...register("term", {
-                      required: "Please write something to search...",
-                    })}
+                    {...register("term")}
                     className="border outline-none w-full px-10 py-2 rounded-md"
                     placeholder="Search by name, phone, email, location"
                     defaultValue={searchTerm}
+                    type="search"
                   />
                 </div>
                 <Button intent={"secondary"} type="submit">
@@ -133,8 +138,7 @@ const Companies = () => {
                   control={control}
                   name="stateFilter"
                   placeholder="State"
-                  register={register}
-                  className="w-1/2 basic-multi-select"
+                  className="w-2/3 basic-multi-select"
                   options={states}
                   setStateFilter={setStateFilter}
                   value={stateFilter}
