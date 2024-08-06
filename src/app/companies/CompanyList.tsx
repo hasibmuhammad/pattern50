@@ -233,9 +233,9 @@ const CompanyList = ({
           </tbody>
         </table>
       </div>
-      <div className="flex justify-between items-center my-10 px-10 lg:px-0">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-0 justify-between items-center my-10 px-10 lg:px-0">
         <div>
-          <p className="text-slate-400 italic">
+          <p className="text-slate-400">
             Showing {companies.length} out of {data?.count}
           </p>
         </div>

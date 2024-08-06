@@ -4,7 +4,7 @@ type Props = {
   register: any;
   errors: any;
   name: string;
-  placeholder: string;
+  placeholder?: string;
   type: string;
   onChange?: (e: any) => void;
   className?: string;

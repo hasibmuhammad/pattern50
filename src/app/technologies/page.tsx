@@ -13,7 +13,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/components/button/button";
 import Tools from "./Tools";
-import TechnologyTabs from "./TechnologyTabs"; // import the new component
+import TechnologyTabs from "./TechnologyTabs";
+import AddCompany from "../companies/AddCompany";
+import AddTool from "./AddTool";
 
 type SearchForm = {
   term: string;
@@ -34,6 +36,7 @@ const Technologies = () => {
 
   const handleDrawerOpen = () => setIsDrawerOpen(true);
   const handleDrawerClose = () => setIsDrawerOpen(false);
+
   const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleActiveTab = (id: string) => {
@@ -81,7 +84,7 @@ const Technologies = () => {
 
   const search: SubmitHandler<SearchForm> = (data) => {
     setSearchTerm(data.term);
-    setPage(1); // Reset to page 1 when a new search term is entered
+    setPage(1);
   };
 
   return (
@@ -162,6 +165,11 @@ const Technologies = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* Add company drawer */}
+      {isDrawerOpen && (
+        <AddTool isOpen={isDrawerOpen} onClose={handleDrawerClose} />
       )}
     </div>
   );

@@ -191,9 +191,9 @@ const Tools = ({
           </tbody>
         </table>
       </div>
-      <div className="my-10 px-10 lg:px-0 flex items-center justify-between">
+      <div className="my-10 px-10 lg:px-0 flex flex-col md:flex-row gap-5 md:gap-0 items-center md:justify-between">
         <div>
-          <p className="text-slate-400 italic">
+          <p className="text-slate-400">
             Showing {technologyTools.length} out of {data?.count}
           </p>
         </div>
