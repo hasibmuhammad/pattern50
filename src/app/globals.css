@@ -27,3 +27,9 @@
 .react-datepicker__input-container .react-datepicker__calendar-icon {
   padding-top: 0.7rem !important;
 }
+
+.css-13cymwt-control,
+.css-13cymwt-control:focus {
+  border-color: #e5e7eb !important;
+  outline: none !important;
+}

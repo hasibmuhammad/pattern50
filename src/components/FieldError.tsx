@@ -5,8 +5,9 @@ type Props = {
   errors: any;
   name: string;
   className?: string;
+  tools?: any;
 };
-const FieldError = ({ errors, name, className }: Props) => {
+const FieldError = ({ errors, name, tools, className }: Props) => {
   return (
     <>
       {errors && errors[name] && (

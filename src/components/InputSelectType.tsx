@@ -3,42 +3,49 @@ import Select from "react-select";
 import { cn } from "../../utils/cn";
 
 type Props = {
-  register: any;
   control: any;
   errors?: any;
   name: string;
   placeholder?: string;
   className?: string;
+  types: any;
 };
 
 const InputSelectType = ({
-  register,
   control,
   errors,
   name,
   placeholder,
   className,
+  types,
 }: Props) => {
+  const options = types.map((type: any) => ({
+    label: type.name,
+    value: type.name,
+  }));
+
   return (
-    <>
+    <div>
       <Controller
-        {...register(name)}
+        name={name}
         control={control}
-        render={() => (
+        render={({ field }) => (
           <Select
-            className={cn(
-              "w-1/2",
-              {
-                "border rounded-md overflow-hidden border-red-500":
-                  errors && errors[name],
-              },
-              className
-            )}
-            options={[]}
+            {...field}
+            placeholder={placeholder}
+            className={cn(className, {
+              "border border-red-500 rounded-md": errors?.[name],
+            })}
+            options={options}
+            value={
+              options.find((option: any) => option.value === field.value) ||
+              null
+            }
+            onChange={(selected) => field.onChange(selected?.value)}
           />
         )}
       />
-    </>
+    </div>
   );
 };
 

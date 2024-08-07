@@ -136,3 +136,15 @@ export type TechnologyCategoryType = {
   type: string;
   count: number;
 };
+
+export type Tool = {
+  _id: string;
+  created_by: string;
+  name: string;
+  status: string;
+  clientId: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  count: number;
+};

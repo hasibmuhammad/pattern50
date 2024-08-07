@@ -60,6 +60,12 @@ const Technologies = () => {
 
   const techCategories = categories?.data || [];
 
+  const currentTab = techCategories.filter(
+    (category) => category._id === activeTab
+  );
+
+  const tabName = currentTab[0]?.name.split(" ")[0];
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const searchParams = useSearchParams();
 
@@ -169,7 +175,11 @@ const Technologies = () => {
 
       {/* Add company drawer */}
       {isDrawerOpen && (
-        <AddTool isOpen={isDrawerOpen} onClose={handleDrawerClose} />
+        <AddTool
+          tabName={tabName}
+          isOpen={isDrawerOpen}
+          onClose={handleDrawerClose}
+        />
       )}
     </div>
   );

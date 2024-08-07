@@ -24,7 +24,6 @@ const Input = ({
   return (
     <>
       <input
-        {...register(name)}
         className={cn(
           "outline-none rounded-md px-3 w-full py-2 border",
           className,
@@ -37,6 +36,7 @@ const Input = ({
         placeholder={placeholder}
         onChange={onChange}
         defaultValue={defaultValue}
+        {...register(name)}
       />
     </>
   );
