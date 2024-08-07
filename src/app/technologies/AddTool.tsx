@@ -14,6 +14,7 @@ import { Tool } from "@/types/types";
 import { AxiosResponse } from "axios";
 
 // Define the Zod schema
+// Define the Zod schema
 const ToolSchema = z.object({
   tools: z.array(
     z.object({
@@ -31,13 +32,36 @@ const ToolSchema = z.object({
         ),
       logo: z
         .any()
-        .refine((file: File) => file, "File is required")
+        .refine((file: FileList) => file?.length > 0, "File is required")
         .refine(
-          (file) =>
-            file?.[0]?.size <= 2 * 1024 * 1024 &&
-            file?.[0]?.type === "image/png",
-          "File must be PNG and under 2MB"
-        ),
+          (file: FileList) => file?.[0]?.size <= 1 * 1024 * 1024,
+          "File must be under 1MB"
+        )
+        .refine(
+          (file: FileList) =>
+            ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+              file?.[0]?.type
+            ),
+          "File must be PNG,JPG,JPEG or Webp"
+        )
+        .refine(async (file: FileList) => {
+          if (!file || file.length === 0) return false;
+
+          return new Promise((resolve: any) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                resolve(img.width === img.height);
+              };
+              img.onerror = () => {
+                resolve(false);
+              };
+              img.src = event.target?.result as string;
+            };
+            reader.readAsDataURL(file[0]);
+          });
+        }, "File must have equal height and width!"),
     })
   ),
 });
@@ -73,8 +97,6 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
       tools: [{ name: "", type: "", website: "", logo: null }],
     },
     resolver: zodResolver(ToolSchema),
-    mode: "onChange",
-    reValidateMode: "onChange",
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -236,7 +258,7 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
                 Add More
               </Button>
               <div className="py-5 pr-10 bg-slate-50 flex gap-5 justify-end mt-auto">
-                <Button intent={"secondary"} onClick={onClose}>
+                <Button type="button" intent={"secondary"} onClick={onClose}>
                   Cancel
                 </Button>
                 <Button type="submit">Create</Button>
