@@ -96,6 +96,7 @@ const AddTool = ({ activeTabId, tabName, isOpen, onClose }: Props) => {
         await axiosInstance.get("/technology-category/tool-types/list");
       return response.data;
     },
+    refetchOnWindowFocus: false,
   });
 
   const toolTypes = types?.data || [];
