@@ -25,7 +25,7 @@ const ToolSchema = z.object({
         .optional()
         .refine(
           (value) =>
-            !value || /^(http|https):\/\/[^\s$.?#].[^\s]*$/.test(value),
+            !value || /^(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/.test(value),
           {
             message: "Invalid URL format",
           }
@@ -117,7 +117,7 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
         }
       )}
     >
-      <div className="fixed right-0 top-0 bottom-0 max-w-lg rounded-lg overflow-hidden shadow-xl overflow-y-auto">
+      <div className="fixed right-0 top-0 bottom-0 max-w-xl rounded-lg overflow-hidden shadow-xl overflow-y-auto">
         <div className="flex flex-col min-h-screen bg-white">
           <div className="bg-slate-50 p-5 flex justify-between">
             <div>
@@ -190,16 +190,21 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
                         Website Link
                       </label>
                       <div className="w-full">
-                        <Input
-                          register={register}
-                          errors={errors}
-                          name={`tools[${index}].website`}
-                          placeholder="www.figma.com"
-                          type="text"
-                          className={cn({
-                            "border-red-500": errors.tools?.[index]?.website,
-                          })}
-                        />
+                        <div className="flex relative">
+                          <span className="inline-flex items-center absolute h-full px-2 border-r-2 text-slate-400">
+                            http://
+                          </span>
+                          <Input
+                            register={register}
+                            errors={errors}
+                            name={`tools[${index}].website`}
+                            placeholder="www.figma.com"
+                            type="text"
+                            className={cn("pl-20", {
+                              "border-red-500": errors.tools?.[index]?.website,
+                            })}
+                          />
+                        </div>
                         <ToolFieldError
                           errors={errors}
                           index={index}
