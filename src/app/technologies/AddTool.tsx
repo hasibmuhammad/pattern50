@@ -8,12 +8,12 @@ import InputSelectType from "@/components/InputSelectType";
 import Button from "@/components/button/button";
 import { cn } from "../../../utils/cn";
 import ToolFieldError from "@/components/ToolFieldError";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../../lib/axiosInstance";
 import { Tool } from "@/types/types";
 import { AxiosResponse } from "axios";
+import InputFile from "@/components/InputFile";
 
-// Define the Zod schema
 // Define the Zod schema
 const ToolSchema = z.object({
   tools: z.array(
@@ -42,7 +42,7 @@ const ToolSchema = z.object({
             ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
               file?.[0]?.type
             ),
-          "File must be PNG,JPG,JPEG or Webp"
+          "File must be PNG, JPG, JPEG, or WebP"
         )
         .refine(async (file: FileList) => {
           if (!file || file.length === 0) return false;
@@ -71,12 +71,25 @@ type FormValues = z.infer<typeof ToolSchema>;
 type Props = {
   isOpen: boolean;
   tabName: string;
+  activeTabId: string;
   onClose: () => void;
 };
 
-const AddTool = ({ tabName, isOpen, onClose }: Props) => {
-  // fetching the types
-  const { data: types, isLoading } = useQuery({
+type ToolInfo = {
+  tools: {
+    name: string;
+    type: string;
+    website?: string;
+    logo?: FileList;
+  }[];
+};
+
+const AddTool = ({ activeTabId, tabName, isOpen, onClose }: Props) => {
+  const {
+    data: types,
+    isLoading,
+    error: typesError,
+  } = useQuery({
     queryKey: ["types"],
     queryFn: async () => {
       const response: AxiosResponse<{ data: Tool[]; count: number }> =
@@ -91,6 +104,7 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -106,6 +120,71 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
 
   const handleAddMore = () => {
     append({ name: "", type: "", website: "", logo: null });
+  };
+
+  const uploadLogo = async (
+    file: File
+  ): Promise<{ logo: string; logoKey: string }> => {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    try {
+      const response = await axiosInstance.patch("/upload/documents", formData);
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      throw new Error("Failed to upload logo");
+    }
+  };
+
+  const handleMutation = async (tools: FormValues["tools"]) => {
+    const toolsWithDetails = await Promise.all(
+      tools.map(async (tool) => {
+        const logoFile = await tool.logo?.[0];
+        if (!logoFile) return null;
+
+        const logoRes: any = await uploadLogo(logoFile);
+
+        const logo = logoRes?.Location;
+        const logoKey = logoRes?.key;
+
+        return {
+          name: tool.name,
+          typeId: tool.type,
+          categoryId: activeTabId,
+          website: tool.website ? `https://${tool.website}` : undefined,
+          logo,
+          logoKey,
+        };
+      })
+    );
+
+    const filteredTools = toolsWithDetails.filter((tool) => tool !== null);
+
+    try {
+      await axiosInstance.post("/technology-tool/create", {
+        tools: filteredTools,
+      });
+    } catch (error) {
+      console.error("Error creating tool:", error);
+      throw new Error("Failed to create tools");
+    }
+  };
+
+  const createTool = useMutation({
+    mutationKey: ["addTool"],
+    mutationFn: handleMutation,
+  });
+
+  const onSubmit = (data: ToolInfo) => {
+    createTool.mutate(data.tools, {
+      onSuccess: () => {
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Mutation error:", error);
+      },
+    });
   };
 
   return (
@@ -132,12 +211,12 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
           <div className="flex-1 flex flex-col justify-between">
             <form
               className="flex-1 mt-4 flex flex-col justify-between"
-              onSubmit={handleSubmit((data) => console.log(data))}
+              onSubmit={handleSubmit(onSubmit)}
             >
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="bg-slate-50 px-10 mx-5 py-5 my-2 rounded-lg flex gap-1"
+                  className="bg-slate-50 px-10 mx-5 py-5 my-2 rounded-lg flex justify-between"
                 >
                   <div className="space-y-8">
                     <div className="flex gap-4 items-center justify-between">
@@ -217,24 +296,28 @@ const AddTool = ({ tabName, isOpen, onClose }: Props) => {
                         Add Logo <span className="text-red-500">*</span>
                       </label>
                       <div className="w-full">
-                        <Input
-                          register={register}
-                          errors={errors}
+                        <input
                           name={`tools[${index}].logo`}
                           type="file"
                           className={cn(
-                            "file:border-none file:bg-white bg-white text-sm",
+                            "file:border-none file:bg-white bg-white text-sm outline-none rounded-md px-3 w-full py-2 border",
                             {
                               "border-red-500": errors.tools?.[index]?.logo,
                             }
                           )}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setValue(`tools[${index}].logo`, e.target.files);
+                            }
+                          }}
                         />
                         <p
                           className={cn(
                             "flex items-center gap-1 text-sm text-slate-400 py-1"
                           )}
                         >
-                          Files must be in PNG format, ≤ 2MB, 200x200 pixels
+                          Files must be in PNG format, ≤ 1MB, 200x200 pixels
                         </p>
                         <ToolFieldError
                           errors={errors}

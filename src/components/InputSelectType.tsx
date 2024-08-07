@@ -21,7 +21,7 @@ const InputSelectType = ({
 }: Props) => {
   const options = types.map((type: any) => ({
     label: type.name,
-    value: type.name,
+    value: type._id,
   }));
 
   return (

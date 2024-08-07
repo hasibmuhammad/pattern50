@@ -177,6 +177,7 @@ const Technologies = () => {
       {isDrawerOpen && (
         <AddTool
           tabName={tabName}
+          activeTabId={activeTab}
           isOpen={isDrawerOpen}
           onClose={handleDrawerClose}
         />
