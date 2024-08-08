@@ -24,15 +24,14 @@ const ToolSchema = z.object({
         .string()
         .optional()
         .refine(
-          (value) =>
-            !value || /^(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/.test(value),
+          (value) => !value || /^www\.[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/.test(value),
           {
             message: "Invalid URL format",
           }
         ),
       logo: z
         .any()
-        .refine((file: FileList) => file?.length > 0, "File is required")
+        .refine((file: FileList) => file, "File is required")
         .refine(
           (file: FileList) => file?.[0]?.size <= 1 * 1024 * 1024,
           "File must be under 1MB"
@@ -272,7 +271,7 @@ const AddTool = ({ activeTabId, tabName, isOpen, onClose }: Props) => {
                       <div className="w-full">
                         <div className="flex relative">
                           <span className="inline-flex items-center absolute h-full px-2 border-r-2 text-slate-400">
-                            http://
+                            https://
                           </span>
                           <Input
                             register={register}
@@ -297,7 +296,20 @@ const AddTool = ({ activeTabId, tabName, isOpen, onClose }: Props) => {
                         Add Logo <span className="text-red-500">*</span>
                       </label>
                       <div className="w-full">
-                        <input
+                        <InputFile
+                          errors={errors}
+                          name={`tools[${index}].logo`}
+                          register={register}
+                          type="file"
+                          placeholder="Select"
+                          className={cn(
+                            "file:border-none file:bg-white bg-white text-sm outline-none rounded-md px-3 w-full py-2 border",
+                            {
+                              "border-red-500": errors.tools?.[index]?.logo,
+                            }
+                          )}
+                        />
+                        {/* <input
                           name={`tools[${index}].logo`}
                           type="file"
                           className={cn(
@@ -312,7 +324,7 @@ const AddTool = ({ activeTabId, tabName, isOpen, onClose }: Props) => {
                               setValue(`tools[${index}].logo`, e.target.files);
                             }
                           }}
-                        />
+                        /> */}
                         <p
                           className={cn(
                             "flex items-center gap-1 text-sm text-slate-400 py-1"
