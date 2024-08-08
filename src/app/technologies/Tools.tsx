@@ -12,16 +12,19 @@ import axiosInstance from "../../../lib/axiosInstance";
 import Button from "@/components/button/button";
 import { cn } from "../../../utils/cn";
 import Image from "next/image";
+import EditTool from "./EditTool";
 
 const Tools = ({
   searchTerm,
   activeTab,
   page,
   setPage,
+  tabName,
 }: {
   searchTerm: string;
   activeTab: string;
   page: number;
+  tabName: string;
   setPage: (page: number) => void;
 }) => {
   const [size, setSize] = useState(10);
@@ -83,6 +86,22 @@ const Tools = ({
 
   const onPageChange = (newPage: number) => {
     setPage(newPage);
+    refetch();
+  };
+
+  // Edit Item things
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editItemId, setEditItemId] = useState("");
+
+  const handleDrawerOpen = () => setIsDrawerOpen(true);
+  const handleDrawerClose = () => setIsDrawerOpen(false);
+
+  const handleEditItem = (toolId: string) => {
+    setEditItemId(toolId);
+    handleDrawerOpen();
+  };
+
+  const handleRefetchOnUpdate = () => {
     refetch();
   };
 
@@ -180,10 +199,21 @@ const Tools = ({
                   </span>
                 </th>
                 <td className="px-6 py-4">{tool?.type}</td>
-                <td className="px-6 py-4">{tool?.website}</td>
+                <td className="px-6 py-4">
+                  {tool?.website ? (
+                    tool?.website
+                  ) : (
+                    <span className="text-slate-300 font-bold">—</span>
+                  )}
+                </td>
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                    <Button intent={"link"}>Edit</Button>
+                    <Button
+                      onClick={() => handleEditItem(tool?._id)}
+                      intent={"link"}
+                    >
+                      Edit
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -235,6 +265,18 @@ const Tools = ({
           </button>
         </div>
       </div>
+
+      {/* Edit Company Drawer */}
+      {isDrawerOpen && (
+        <EditTool
+          isOpen={isDrawerOpen}
+          editItemId={editItemId}
+          activeTab={activeTab}
+          onClose={handleDrawerClose}
+          onUpdate={handleRefetchOnUpdate}
+          tabName={tabName}
+        />
+      )}
     </div>
   );
 };

@@ -165,6 +165,7 @@ const Technologies = () => {
               <Tools
                 searchTerm={searchTerm}
                 activeTab={activeTab}
+                tabName={tabName}
                 page={page}
                 setPage={setPage}
               />

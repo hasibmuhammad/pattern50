@@ -309,22 +309,6 @@ const AddTool = ({ activeTabId, tabName, isOpen, onClose }: Props) => {
                             }
                           )}
                         />
-                        {/* <input
-                          name={`tools[${index}].logo`}
-                          type="file"
-                          className={cn(
-                            "file:border-none file:bg-white bg-white text-sm outline-none rounded-md px-3 w-full py-2 border",
-                            {
-                              "border-red-500": errors.tools?.[index]?.logo,
-                            }
-                          )}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setValue(`tools[${index}].logo`, e.target.files);
-                            }
-                          }}
-                        /> */}
                         <p
                           className={cn(
                             "flex items-center gap-1 text-sm text-slate-400 py-1"

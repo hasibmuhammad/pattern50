@@ -40,7 +40,6 @@ const InputFile = ({
       type={type}
       placeholder={placeholder}
       onChange={handleFileChange}
-      defaultValue={defaultValue}
       {...register(name)}
     />
   );

@@ -148,3 +148,37 @@ export type Tool = {
   __v: number;
   count: number;
 };
+
+export type ToolData = {
+  _id: string;
+  created_by: string;
+  name: string;
+  website: string;
+  logo: string;
+  logoKey: string;
+  logoName: string;
+  status: string;
+  clientId: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  type: {
+    _id: string;
+    created_by: string;
+    name: string;
+    status: string;
+    clientId: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  category: {
+    _id: string;
+    created_by: string;
+    name: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+};
