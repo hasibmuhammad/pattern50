@@ -173,34 +173,36 @@ const EditTool = ({
     }
   };
 
+  const handleUpdateMutation = async (data: ToolInfo) => {
+    const payload = data.tools[0];
+
+    let logoKey = editItemInfo?.logoKey;
+    let logo = editItemInfo?.logo;
+
+    if (isFileChanged) {
+      const res = await uploadLogo(payload.logo[0]);
+      logoKey = res?.key;
+      logo = res?.Location;
+    }
+
+    const response = await axiosInstance.patch(
+      `/technology-tool/edit/${editItemId}`,
+      {
+        name: payload.name,
+        website: payload.website ? `https://${payload.website}` : "",
+        typeId: editItemInfo?.type._id,
+        logo: logo,
+        logoKey: logoKey,
+        categoryId: activeTab,
+        id: editItemId,
+      }
+    );
+    return response.data;
+  };
+
   const updateToolMutation = useMutation({
     mutationKey: ["updateTool", editItemId],
-    mutationFn: async (data: ToolInfo) => {
-      const payload = data.tools[0];
-
-      let logoKey = editItemInfo?.logoKey;
-      let logo = editItemInfo?.logo;
-
-      if (isFileChanged) {
-        const res = await uploadLogo(payload.logo[0]);
-        logoKey = res?.key;
-        logo = res?.Location;
-      }
-
-      const response = await axiosInstance.patch(
-        `/technology-tool/edit/${editItemId}`,
-        {
-          name: payload.name,
-          website: payload.website ? `https://${payload.website}` : "",
-          typeId: editItemInfo?.type._id,
-          logo: logo,
-          logoKey: logoKey,
-          categoryId: activeTab,
-          id: editItemId,
-        }
-      );
-      return response.data;
-    },
+    mutationFn: handleUpdateMutation,
   });
 
   const onSubmit = async (data: ToolInfo) => {
@@ -225,7 +227,7 @@ const EditTool = ({
       setIsFileChanged(true); // Set flag to true when a new file is selected
 
       // Trigger validation on file change
-      //   await trigger("tools[0].logo");
+      await trigger("tools[0].logo");
     }
   };
 
@@ -234,14 +236,6 @@ const EditTool = ({
       fileInputRef.current.click();
     }
   };
-
-  //   if (isLoadingTypes || editItemLoading) {
-  //     return <div>Loading...</div>;
-  //   }
-
-  //   if (typesError || editItemError) {
-  //     return <div>Error loading data</div>;
-  //   }
 
   return (
     <div
