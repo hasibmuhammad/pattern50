@@ -113,6 +113,21 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
             </li>
             <li
               className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
+                pathname === "/products"
+                  ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
+                  : ""
+              }`}
+            >
+              <Link
+                className="flex gap-1 items-center"
+                href={"/products?page=1&size=10&query=&filterBy="}
+              >
+                {" "}
+                <Buildings /> Products
+              </Link>
+            </li>
+            <li
+              className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
                 pathname === "/technologies"
                   ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
                   : ""

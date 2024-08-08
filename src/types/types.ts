@@ -118,6 +118,56 @@ export type CompanyInfoType = {
   productsCount: number;
 };
 
+export type ProductsInfo = {
+  _id: string;
+  created_by: string;
+  name: string;
+  details: string;
+  clientId: string;
+  companyId: string;
+  inv_generationDate: any;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  company: {
+    _id: string;
+    created_by: string;
+    name: string;
+    email: string;
+    masterEmail: string;
+    phone: string;
+    userId: string;
+    ein: string;
+    addressId: string;
+    clientId: string;
+    billingInfoId: string;
+    status: string;
+    acc_contactId: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  contract: {
+    _id: string;
+    created_by: string;
+    name: string;
+    terminationReason: any;
+    safeAgreementAmount?: number;
+    valuationCapitalAmount?: number;
+    discount?: number;
+    clientId: string;
+    productId: string;
+    rateSheetId: string;
+    status: string;
+    startDate: string;
+    endDate: any;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  count: number;
+};
+
 export type TechnologyCategoryType = {
   _id: string;
   created_by: string;
