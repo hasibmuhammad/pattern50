@@ -37,7 +37,7 @@ const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
             <span>{count}</span>
             <X
               size={16}
-              className="ml-1 cursor-pointer z-50"
+              className="ml-1 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 clearValue();

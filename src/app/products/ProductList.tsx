@@ -238,10 +238,12 @@ const ProductList = ({
                 </td>
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                    <Link href={`/product/${product?._id}`}>
-                      <Button intent={"link"}>Details</Button>
+                    <Button intent={"link"}>Details</Button>
+                    <Link
+                      href={`/products/${product?._id}/controll-room?page=1&size=10&query=&filterBy=`}
+                    >
+                      <Button intent={"link"}>Controll room</Button>
                     </Link>
-                    <Button intent={"link"}>Controll room</Button>
                   </div>
                 </td>
               </tr>

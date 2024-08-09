@@ -232,3 +232,76 @@ export type ToolData = {
     __v: number;
   };
 };
+
+export type ProductInfo = {
+  _id: string;
+  created_by: string;
+  name: string;
+  details: string;
+  clientId: string;
+  companyId: string;
+  inv_generationDate: any;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  company: {
+    _id: string;
+    created_by: string;
+    name: string;
+    email: string;
+    masterEmail: string;
+    phone: string;
+    userId: string;
+    ein: string;
+    addressId: string;
+    clientId: string;
+    billingInfoId: string;
+    status: string;
+    acc_contactId: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  contract: {
+    _id: string;
+    created_by: string;
+    name: string;
+    terminationReason: any;
+    safeAgreementAmount: any;
+    valuationCapitalAmount: any;
+    discount: any;
+    clientId: string;
+    productId: string;
+    rateSheetId: string;
+    status: string;
+    startDate: string;
+    endDate: any;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  ratesheet: {
+    _id: string;
+    created_by: string;
+    name: string;
+    startDate: string;
+    endDate: any;
+    status: string;
+    clientId: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+    roleCount: number;
+  };
+};
+
+export type Categories = {
+  _id: string;
+  created_by: string;
+  name: string;
+  image: string;
+  clientId: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+};
