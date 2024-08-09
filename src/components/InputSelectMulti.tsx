@@ -37,8 +37,12 @@ const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
             <span>{count}</span>
             <X
               size={16}
-              className="ml-1 cursor-pointer"
+              className="ml-1 cursor-pointer z-50"
               onClick={(e) => {
+                e.stopPropagation();
+                clearValue();
+              }}
+              onTouchStart={(e) => {
                 e.stopPropagation();
                 clearValue();
               }}
@@ -61,8 +65,6 @@ const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
 };
 
 const CustomOption = (props: OptionProps<Option, true>) => {
-  console.log(props);
-
   const { isSelected, label } = props;
 
   return (
@@ -114,6 +116,7 @@ const InputSelectMulti = ({
             }}
             isMulti
             closeMenuOnSelect={false}
+            blurInputOnSelect={false}
             value={formattedValue}
             classNamePrefix="multi-select"
             hideSelectedOptions={false}

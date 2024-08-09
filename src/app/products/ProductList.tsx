@@ -133,8 +133,6 @@ const ProductList = ({
 
   const products = data?.data || [];
 
-  console.log(products);
-
   const totalPage = data ? Math.ceil(data.count / size) : 1;
 
   const onPageChange = (page: number) => {
