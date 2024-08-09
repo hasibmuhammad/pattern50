@@ -14,8 +14,9 @@ type Props = {
   placeholder: string;
   className?: string;
   options: Option[];
-  setStateFilter: (value: string[]) => void;
+  setFilter: (value: string[]) => void;
   value: string[];
+  urlPart?: string;
 };
 
 // Custom ValueContainer to display the count of selected items
@@ -24,7 +25,7 @@ const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
   const count = getValue().length;
   return (
     <components.ValueContainer {...props}>
-      {count > 0 ? `${count} selected` : "State"}
+      {count > 0 ? `${count} selected` : "Filter By"}
     </components.ValueContainer>
   );
 };
@@ -35,8 +36,9 @@ const InputSelectMulti = ({
   placeholder,
   className,
   options,
-  setStateFilter,
+  setFilter,
   value,
+  urlPart,
 }: Props) => {
   const router = useRouter();
 
@@ -59,8 +61,8 @@ const InputSelectMulti = ({
             const filterValue = (selectedOptions as Option[]).map(
               (option) => option.value
             );
-            setStateFilter(filterValue);
-            router.push(`/companies?state=${filterValue.join(",")}`);
+            setFilter(filterValue);
+            router.push(`${urlPart}=${filterValue.join(",")}`);
           }}
           isMulti
           closeMenuOnSelect={false}

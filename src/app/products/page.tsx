@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { List, MagnifyingGlass, PlusCircle } from "@phosphor-icons/react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Loader from "@/components/Loader";
 import Sidebar from "@/components/Sidebar";
@@ -16,7 +16,7 @@ import ProductList from "./ProductList";
 
 type SearchForm = {
   term: string;
-  stateFilter: string[];
+  filter: string[];
 };
 
 const ProductSearchSchema = z.object({
@@ -27,18 +27,6 @@ const ProductSearchSchema = z.object({
 });
 
 const Products = () => {
-  const { data: states } = useQuery({
-    queryKey: ["states"],
-    queryFn: async () => {
-      const response = await axiosInstance.get("/company/states");
-      return response.data.map((state: any) => ({
-        label: state.name,
-        value: state.name,
-      }));
-    },
-    refetchOnWindowFocus: false,
-  });
-
   const {
     control,
     handleSubmit,
@@ -48,9 +36,37 @@ const Products = () => {
   } = useForm<SearchForm>({ resolver: zodResolver(ProductSearchSchema) });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [stateFilter, setStateFilter] = useState<string[]>([]);
+  const [filter, setFilter] = useState<string[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const query = searchParams.get("query");
+    const filterBy = searchParams.get("filterBy");
+
+    if (query) {
+      setSearchTerm(query);
+      setValue("term", query);
+    } else {
+      setSearchTerm("");
+    }
+
+    if (filterBy) {
+      const filterArray = filterBy.split(",");
+      setFilter(filterArray);
+      setValue("filter", filterArray);
+    } else {
+      setFilter([]);
+    }
+  }, [searchParams, setValue]);
+
+  const search: SubmitHandler<SearchForm> = (data) => {
+    setSearchTerm(data.term);
+
+    router.push(
+      `/products?page=1&query=${data.term}&filterBy=${filter.join(",")}`
+    );
+  };
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -80,7 +96,7 @@ const Products = () => {
         <h4 className="font-bold text-blue-500">Products</h4>
         <h1 className="text-3xl font-bold">All Products</h1>
         <div>
-          <form onSubmit={handleSubmit((data) => console.log(data))}>
+          <form onSubmit={handleSubmit(search)}>
             <div className="flex flex-col-reverse md:flex-row items-center gap-5">
               <div className="w-full flex gap-2">
                 <div className="w-full relative flex justify-center items-center">
@@ -97,11 +113,11 @@ const Products = () => {
                   Search
                 </Button>
 
-                {/* <InputSelectMulti
+                <InputSelectMulti
                   control={control}
-                  name="stateFilter"
+                  name="filter"
                   placeholder="Filter"
-                  className="w-2/3 basic-multi-select"
+                  className="w-full md:w-1/3 basic-multi-select"
                   options={[
                     { label: "Draft", value: "Draft" },
                     { label: "Signed", value: "Signed" },
@@ -109,9 +125,10 @@ const Products = () => {
                     { label: "Terminated", value: "Terminated" },
                     { label: "Completed", value: "Completed" },
                   ]}
-                  setStateFilter={setStateFilter}
-                  value={stateFilter}
-                /> */}
+                  setFilter={setFilter}
+                  value={filter}
+                  urlPart="/products?filterBy"
+                />
               </div>
               <Button
                 className="flex items-center gap-1"
@@ -130,7 +147,7 @@ const Products = () => {
           </div>
         ) : (
           <div className="relative pt-5">
-            <ProductList searchTerm={""} />
+            <ProductList initialFilter={filter} searchTerm={searchTerm} />
           </div>
         )}
       </div>

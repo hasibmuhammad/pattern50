@@ -18,14 +18,14 @@ import { AxiosResponse } from "axios";
 
 type SearchForm = {
   term: string;
-  stateFilter: string[];
+  filter: string[];
 };
 
 const CompanySearchSchema = z.object({
   term: z
     .string({ required_error: "Search term required!" })
     .min(2, { message: "Search term should be more than 2 characters." }),
-  stateFilter: z.array(z.string()).optional(),
+  filter: z.array(z.string()).optional(),
 });
 
 const Companies = () => {
@@ -50,7 +50,7 @@ const Companies = () => {
   } = useForm<SearchForm>({ resolver: zodResolver(CompanySearchSchema) });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [stateFilter, setStateFilter] = useState<string[]>([]);
+  const [filter, setFilter] = useState<string[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -67,10 +67,10 @@ const Companies = () => {
 
     if (stateQuery) {
       const stateArray = stateQuery.split(",");
-      setStateFilter(stateArray);
-      setValue("stateFilter", stateArray);
+      setFilter(stateArray);
+      setValue("filter", stateArray);
     } else {
-      setStateFilter([]);
+      setFilter([]);
     }
   }, [searchParams, setValue]);
 
@@ -78,7 +78,7 @@ const Companies = () => {
     setSearchTerm(data.term);
 
     router.push(
-      `/companies?page=1&query=${data.term}&state=${stateFilter.join(",")}`
+      `/companies?page=1&query=${data.term}&state=${filter.join(",")}`
     );
   };
 
@@ -131,12 +131,13 @@ const Companies = () => {
 
                 <InputSelectMulti
                   control={control}
-                  name="stateFilter"
+                  name="filter"
                   placeholder="State"
-                  className="w-2/3 basic-multi-select"
+                  className="w-full md:w-1/3 basic-multi-select"
                   options={states}
-                  setStateFilter={setStateFilter}
-                  value={stateFilter}
+                  setFilter={setFilter}
+                  value={filter}
+                  urlPart="/companies?state"
                 />
               </div>
               <Button
@@ -156,7 +157,7 @@ const Companies = () => {
           </div>
         ) : (
           <div className="relative pt-5">
-            <CompanyList initialFilter={stateFilter} searchTerm={searchTerm} />
+            <CompanyList initialFilter={filter} searchTerm={searchTerm} />
           </div>
         )}
       </div>

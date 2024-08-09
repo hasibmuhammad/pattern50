@@ -38,11 +38,18 @@ const formatDate = (isoString: string) => {
   return `${day} ${month} ${year}`;
 };
 
-const ProductList = ({ searchTerm }: { searchTerm: string }) => {
+const ProductList = ({
+  searchTerm,
+  initialFilter,
+}: {
+  searchTerm: string;
+  initialFilter: string[];
+}) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const searchParams = useSearchParams();
   const router = useRouter();
   const [size, setSize] = useState(10);
+  const [filter, setFilter] = useState<string[]>(initialFilter);
 
   // Edit company things
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -66,18 +73,23 @@ const ProductList = ({ searchTerm }: { searchTerm: string }) => {
     const filterBy = searchParams.get("filterBy") || "";
     setCurrentPage(page);
     setSize(size);
+    setFilter(filterBy ? filterBy.split(",") : []);
   }, [searchParams]);
 
   useEffect(() => {
     router.push(
       `/products?page=${currentPage}&size=${size}&query=${
         searchTerm || ""
-      }&filterBy=`
+      }&filterBy=${filter.join(",") || ""}`
     );
-  }, [currentPage, size, searchTerm]);
+  }, [currentPage, size, searchTerm, filter]);
 
   // fetchcompanies function
-  const fetchProducts = async (page: number, searchTerm: string) => {
+  const fetchProducts = async (
+    page: number,
+    searchTerm: string,
+    filter: string[]
+  ) => {
     try {
       const accessToken = localStorage.getItem("access-token");
       const refreshToken = localStorage.getItem("refresh-token");
@@ -87,7 +99,7 @@ const ProductList = ({ searchTerm }: { searchTerm: string }) => {
           await axiosInstance.get(
             `/product/list?page=${page}&size=${size}&query=${
               searchTerm || ""
-            }&filterBy=`
+            }&filterBy=${filter.join(",").toLowerCase() || ""}`
           );
 
         return res.data;
@@ -111,8 +123,9 @@ const ProductList = ({ searchTerm }: { searchTerm: string }) => {
       "products",
       currentPage ? currentPage : 1,
       searchTerm ? searchTerm : "",
+      filter,
     ],
-    queryFn: () => fetchProducts(currentPage, searchTerm),
+    queryFn: () => fetchProducts(currentPage, searchTerm, filter),
     refetchOnWindowFocus: false,
   });
 
@@ -269,7 +282,7 @@ const ProductList = ({ searchTerm }: { searchTerm: string }) => {
                 key={page}
                 href={`/products?page=${page}&size=${size}${
                   searchTerm && `&query=${searchTerm}`
-                }&filterBy=`}
+                }&filterBy=${filter.join(",") || ""}`}
               >
                 <Button
                   onClick={() => onPageChange(currentPage)}
@@ -286,7 +299,7 @@ const ProductList = ({ searchTerm }: { searchTerm: string }) => {
               router.push(
                 `/products?page=${currentPage + 1}&size=${size}${
                   searchTerm && `&query=${searchTerm}`
-                }&filterBy=`
+                }&filterBy=${filter.join(",") || ""}`
               );
             }}
             disabled={currentPage >= totalPage}
