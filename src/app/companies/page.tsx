@@ -131,7 +131,7 @@ const Companies = () => {
 
                 <InputSelectMulti
                   control={control}
-                  name="filter"
+                  name="filterByState"
                   placeholder="State"
                   className="w-full md:w-3/12 basic-multi-select"
                   options={states}

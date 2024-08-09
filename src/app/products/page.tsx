@@ -115,8 +115,8 @@ const Products = () => {
 
                 <InputSelectMulti
                   control={control}
-                  name="filter"
-                  placeholder="Filter"
+                  name="filterByStatus"
+                  placeholder="Filter by"
                   className="relative w-full md:w-3/12 basic-multi-select"
                   options={[
                     { label: "Draft", value: "Draft" },

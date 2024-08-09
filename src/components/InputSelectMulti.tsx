@@ -1,8 +1,12 @@
 import { Controller } from "react-hook-form";
-import Select, { components, ValueContainerProps } from "react-select";
+import Select, {
+  components,
+  ValueContainerProps,
+  OptionProps,
+} from "react-select";
 import { cn } from "../../utils/cn";
 import { useRouter } from "next/navigation";
-import { X } from "@phosphor-icons/react";
+import { X, Check } from "@phosphor-icons/react";
 
 type Option = {
   label: string;
@@ -21,29 +25,53 @@ type Props = {
 };
 
 const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
-  const { getValue, clearValue } = props;
+  const { getValue, clearValue, selectProps } = props;
+
   const count = getValue().length;
 
   return (
     <components.ValueContainer {...props}>
       {count > 0 ? (
-        <>
-          <div className="flex items-center">
+        <div className="flex gap-1 items-center">
+          <div className="flex items-center bg-slate-200 px-2 rounded-md">
             <span>{count}</span>
             <X
               size={16}
-              className="ml-2 cursor-pointer"
+              className="ml-1 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 clearValue();
               }}
             />
           </div>
-        </>
+          {selectProps.name === "filterByState" && (
+            <span className="font-medium">States</span>
+          )}
+          {selectProps.name === "filterByStatus" && (
+            <span className="font-medium">Status</span>
+          )}
+        </div>
       ) : (
         props.children
       )}
     </components.ValueContainer>
+  );
+};
+
+const CustomOption = (props: OptionProps<Option, true>) => {
+  console.log(props);
+
+  const { isSelected, label } = props;
+
+  return (
+    <components.Option {...props}>
+      <div className="flex items-center justify-between cursor-pointer">
+        <span>{label}</span>
+        {isSelected && (
+          <Check size={16} weight="bold" className="text-blue-600" />
+        )}
+      </div>
+    </components.Option>
   );
 };
 
@@ -85,11 +113,12 @@ const InputSelectMulti = ({
             isMulti
             closeMenuOnSelect={false}
             value={formattedValue}
-            components={{
-              ValueContainer: CustomValueContainer,
-            }}
             classNamePrefix="multi-select"
             hideSelectedOptions={false}
+            components={{
+              ValueContainer: CustomValueContainer,
+              Option: CustomOption,
+            }}
           />
         </>
       )}

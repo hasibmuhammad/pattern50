@@ -41,3 +41,11 @@
 .multi-select__clear-indicator {
   display: none !important;
 }
+.css-tr4s17-option,
+.css-d7l1ni-option {
+  background-color: #fff !important;
+  color: inherit !important;
+}
+.css-d7l1ni-option:active {
+  background-color: #fff !important;
+}
