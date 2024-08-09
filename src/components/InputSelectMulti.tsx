@@ -2,6 +2,7 @@ import { Controller } from "react-hook-form";
 import Select, { components, ValueContainerProps } from "react-select";
 import { cn } from "../../utils/cn";
 import { useRouter } from "next/navigation";
+import { X } from "@phosphor-icons/react";
 
 type Option = {
   label: string;
@@ -19,13 +20,29 @@ type Props = {
   urlPart?: string;
 };
 
-// Custom ValueContainer to display the count of selected items
 const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
-  const { getValue } = props;
+  const { getValue, clearValue } = props;
   const count = getValue().length;
+
   return (
     <components.ValueContainer {...props}>
-      {count > 0 ? `${count} selected` : "Filter By"}
+      {count > 0 ? (
+        <>
+          <div className="flex items-center">
+            <span>{count}</span>
+            <X
+              size={16}
+              className="ml-2 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                clearValue();
+              }}
+            />
+          </div>
+        </>
+      ) : (
+        props.children
+      )}
     </components.ValueContainer>
   );
 };
@@ -52,23 +69,29 @@ const InputSelectMulti = ({
       name={name}
       control={control}
       render={({ field }) => (
-        <Select
-          {...field}
-          className={cn(className)}
-          placeholder={placeholder}
-          options={options}
-          onChange={(selectedOptions) => {
-            const filterValue = (selectedOptions as Option[]).map(
-              (option) => option.value
-            );
-            setFilter(filterValue);
-            router.push(`${urlPart}=${filterValue.join(",")}`);
-          }}
-          isMulti
-          closeMenuOnSelect={false}
-          value={formattedValue}
-          components={{ ValueContainer: CustomValueContainer }}
-        />
+        <>
+          <Select
+            {...field}
+            className={cn(className)}
+            placeholder={placeholder}
+            options={options}
+            onChange={(selectedOptions) => {
+              const filterValue = (selectedOptions as Option[]).map(
+                (option) => option.value
+              );
+              setFilter(filterValue);
+              router.push(`${urlPart}=${filterValue.join(",")}`);
+            }}
+            isMulti
+            closeMenuOnSelect={false}
+            value={formattedValue}
+            components={{
+              ValueContainer: CustomValueContainer,
+            }}
+            classNamePrefix="multi-select"
+            hideSelectedOptions={false}
+          />
+        </>
       )}
     />
   );

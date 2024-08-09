@@ -117,7 +117,7 @@ const Products = () => {
                   control={control}
                   name="filter"
                   placeholder="Filter"
-                  className="w-full md:w-1/3 basic-multi-select"
+                  className="relative w-full md:w-3/12 basic-multi-select"
                   options={[
                     { label: "Draft", value: "Draft" },
                     { label: "Signed", value: "Signed" },

@@ -33,3 +33,11 @@
   border-color: #e5e7eb !important;
   outline: none !important;
 }
+
+/* React select */
+.css-1u9des2-indicatorSeparator {
+  display: none;
+}
+.multi-select__clear-indicator {
+  display: none !important;
+}

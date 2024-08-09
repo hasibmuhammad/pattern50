@@ -133,7 +133,7 @@ const Companies = () => {
                   control={control}
                   name="filter"
                   placeholder="State"
-                  className="w-full md:w-1/3 basic-multi-select"
+                  className="w-full md:w-3/12 basic-multi-select"
                   options={states}
                   setFilter={setFilter}
                   value={filter}
