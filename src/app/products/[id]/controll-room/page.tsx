@@ -247,7 +247,7 @@ const ControllRoom = () => {
             <div
               key={category._id} // Adding a unique key to each category item
               className={cn(
-                "bg-slate-100 min-w-24 w-full rounded-md flex items-center justify-center px-8 py-4 cursor-pointer",
+                "bg-slate-100 min-w-24 w-full h-[104px] rounded-md flex items-center justify-center px-8 py-4 cursor-pointer",
                 {
                   "bg-blue-600 text-white": currentCategory === category?._id,
                 }

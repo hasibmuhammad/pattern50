@@ -135,6 +135,7 @@ const ResourceList = ({
       searchTerm ? searchTerm : "",
       filter,
       toolId,
+      currentCategory,
     ],
     queryFn: () => fetchResources(currentPage, searchTerm, filter),
     refetchOnWindowFocus: false,
