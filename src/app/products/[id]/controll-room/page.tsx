@@ -4,6 +4,7 @@ import {
   CompanyInfoType,
   ProductInfo,
   Resources,
+  ResourceTypes,
   TechnologiesByCategory,
 } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
@@ -12,12 +13,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import Button from "@/components/button/button";
-import {
-  List,
-  MagnifyingGlass,
-  PencilSimpleLine,
-  PlusCircle,
-} from "@phosphor-icons/react";
+import { List, MagnifyingGlass, PlusCircle } from "@phosphor-icons/react";
 import Sidebar from "@/components/Sidebar";
 import axiosInstance from "../../../../../lib/axiosInstance";
 import Image from "next/image";
@@ -107,7 +103,9 @@ const ControllRoom = () => {
   const handleCategoryClick = (categoryId: string) => {
     setCurrentCategory(categoryId);
     router.push(
-      `/products/${id}/controll-room?page=1&size=10&query=&categoryId=${categoryId}&filterBy=`
+      `/products/${id}/controll-room?page=1&size=10&query=&categoryId=${categoryId}&filterBy=${
+        filter.join(",") || ""
+      }`
     );
   };
 
@@ -121,27 +119,6 @@ const ControllRoom = () => {
       }`
     );
   };
-
-  useEffect(() => {
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const size = parseInt(searchParams.get("size") || "10", 10);
-    const filterBy = searchParams.get("filterBy") || "";
-    const toolId = searchParams.get("toolId") || "";
-    setCurrentPage(page);
-    setSize(size);
-    setToolId(toolId);
-    setFilter(filterBy ? filterBy.split(",") : []);
-  }, [searchParams]);
-
-  useEffect(() => {
-    router.push(
-      `/products/${id}/controll-room?page=${currentPage}&size=${size}&query=${
-        searchTerm || ""
-      }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
-        filter.join(",") || ""
-      }`
-    );
-  }, [currentPage, size, searchTerm, filter, toolId]);
 
   // get product details
   const {
@@ -197,6 +174,30 @@ const ControllRoom = () => {
     enabled: !!currentCategory && !!productDetail?._id,
     refetchOnWindowFocus: false,
   });
+
+  // get resource types based on category
+  const { data: resourceTypes } = useQuery({
+    queryKey: ["resourceTypes", currentCategory],
+    queryFn: async () => {
+      const res: AxiosResponse<{ types: ResourceTypes[] }> =
+        await axiosInstance.get(
+          `/resource-type/by-category?categoryId=${currentCategory}`
+        );
+
+      return res.data;
+    },
+    enabled: !!currentCategory,
+    refetchOnWindowFocus: false,
+  });
+
+  const types = resourceTypes?.types?.map((type) => {
+    return {
+      label: type?.name,
+      value: type?._id,
+    };
+  });
+
+  console.log(types);
 
   const search: SubmitHandler<SearchForm> = (data) => {
     setSearchTerm(data.term);
@@ -323,16 +324,12 @@ const ControllRoom = () => {
                 name="filterByResource"
                 placeholder="Filter by"
                 className="relative w-full md:w-3/12 basic-multi-select"
-                options={[
-                  { label: "Draft", value: "Draft" },
-                  { label: "Signed", value: "Signed" },
-                  { label: "Amended", value: "Amended" },
-                  { label: "Terminated", value: "Terminated" },
-                  { label: "Completed", value: "Completed" },
-                ]}
+                options={types || []}
                 setFilter={setFilter}
                 value={filter}
-                urlPart="/products?filterBy"
+                urlPart={`/products/${id}/controll-room?page=1&size=${size}&query=${
+                  searchTerm || ""
+                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy`}
               />
             </div>
             <Button

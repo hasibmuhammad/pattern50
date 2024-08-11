@@ -365,3 +365,10 @@ export type Resources = {
     __v: number;
   };
 };
+
+export type ResourceTypes = {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+};

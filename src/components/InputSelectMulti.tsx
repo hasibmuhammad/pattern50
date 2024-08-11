@@ -56,6 +56,9 @@ const CustomValueContainer = (props: ValueContainerProps<Option, true>) => {
           {selectProps.name === "filterByStatus" && (
             <span className="font-medium">Status</span>
           )}
+          {selectProps.name === "filterByResource" && (
+            <span className="font-medium">Type{`${count > 1 ? "s" : ""}`}</span>
+          )}
         </div>
       ) : (
         props.children

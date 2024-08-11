@@ -76,10 +76,10 @@ const ResourceList = ({
   useEffect(() => {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const size = parseInt(searchParams.get("size") || "10", 10);
-    const type = searchParams.get("type") || "";
+    const filterBy = searchParams.get("filterBy") || "";
     setCurrentPage(page);
     setSize(size);
-    setFilter(type ? type.split(",") : []);
+    setFilter(filterBy ? filterBy.split(",") : []);
   }, [searchParams]);
 
   useEffect(() => {
