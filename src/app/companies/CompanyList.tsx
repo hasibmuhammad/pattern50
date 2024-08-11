@@ -217,7 +217,7 @@ const CompanyList = ({
                 </td>
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                    <Link href={`/company/${company?._id}`}>
+                    <Link href={`/companies/company/${company?._id}`}>
                       <Button intent={"link"}>Details</Button>
                     </Link>
                     {/* <Button

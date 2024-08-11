@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
-import axiosInstance from "../../../../lib/axiosInstance";
+import axiosInstance from "../../../../../lib/axiosInstance";
 import Loader from "@/components/Loader";
 import Button from "@/components/button/button";
 import { List, PencilSimpleLine } from "@phosphor-icons/react";

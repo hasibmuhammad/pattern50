@@ -48,9 +48,11 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
     }
   };
 
+  const isActive = (route: string) => pathname.startsWith(route);
+
   return (
     <aside
-      className={`fixed top-0 left-0 h-full w-64 z-50 bg-slate-100 px-4 py-2 min-h-screen transition-transform transform ${
+      className={`fixed top-0 left-0 min-h-screen w-64 z-50 bg-slate-100  px-4 py-2 transition-transform transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0`}
     >
@@ -74,31 +76,29 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
           <ul className="space-y-2">
             <li
               className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
-                pathname === "/overview"
+                isActive("/overview")
                   ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
                   : ""
               }`}
             >
               <Link className="flex gap-1 items-center" href={"/overview"}>
-                {" "}
                 <HouseSimple /> Overview
               </Link>
             </li>
             <li
               className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
-                pathname === "/dashboard"
+                isActive("/dashboard")
                   ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
                   : ""
               }`}
             >
               <Link className="flex gap-1 items-center" href={"/dashboard"}>
-                {" "}
                 <Buildings /> Dashboard
               </Link>
             </li>
             <li
               className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
-                pathname === "/companies"
+                isActive("/companies")
                   ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
                   : ""
               }`}
@@ -107,13 +107,12 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
                 className="flex gap-1 items-center"
                 href={"/companies?page=1&size=10"}
               >
-                {" "}
                 <Buildings /> Companies
               </Link>
             </li>
             <li
               className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
-                pathname === "/products"
+                isActive("/products")
                   ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
                   : ""
               }`}
@@ -122,19 +121,17 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
                 className="flex gap-1 items-center"
                 href={"/products?page=1&size=10&query=&filterBy="}
               >
-                {" "}
                 <Buildings /> Products
               </Link>
             </li>
             <li
               className={`font-medium text-sm hover:bg-blue-200 py-3 pl-2 transition-all rounded-md ${
-                pathname === "/technologies"
+                isActive("/technologies")
                   ? "bg-blue-200 text-blue-700 py-3 pl-2 transition-colors delay-150 rounded-md"
                   : ""
               }`}
             >
               <Link className="flex gap-1 items-center" href={"/technologies"}>
-                {" "}
                 <LinkIcon /> Technologies
               </Link>
             </li>
@@ -153,7 +150,6 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
                     onClick={handleLogout}
                     className="flex gap-1 items-center"
                   >
-                    {" "}
                     <SignOut /> Logout
                   </button>
                 </li>
