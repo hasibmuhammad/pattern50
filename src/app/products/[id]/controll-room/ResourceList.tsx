@@ -4,21 +4,52 @@ import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, Info } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
-import { CompanyInfoType } from "@/types/types";
-import axiosInstance from "../../../lib/axiosInstance";
-import EditCompany from "./EditCompany";
+import { CompanyInfoType, Resources } from "@/types/types";
+import axiosInstance from "../../../../../lib/axiosInstance";
 import Button from "@/components/button/button";
-import { cn } from "../../../utils/cn";
+import { cn } from "../../../../../utils/cn";
 
-const CompanyList = ({
+const formatDate = (isoString: string) => {
+  if (!isoString) return "Invalid Date";
+
+  const date = new Date(isoString);
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[date.getMonth()];
+
+  return `${day} ${month} ${year}`;
+};
+
+const ResourceList = ({
   searchTerm,
   initialFilter,
+  productId,
+  currentCategory,
+  toolId,
 }: {
   searchTerm: string;
   initialFilter: string[];
+  productId: any;
+  currentCategory: string;
+  toolId: any;
 }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const searchParams = useSearchParams();
@@ -45,22 +76,24 @@ const CompanyList = ({
   useEffect(() => {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const size = parseInt(searchParams.get("size") || "10", 10);
-    const state = searchParams.get("state") || "";
+    const type = searchParams.get("type") || "";
     setCurrentPage(page);
     setSize(size);
-    setFilter(state ? state.split(",") : []);
+    setFilter(type ? type.split(",") : []);
   }, [searchParams]);
 
   useEffect(() => {
     router.push(
-      `/companies?page=${currentPage}&size=${size}&query=${
+      `/products/${productId}/controll-room?page=${currentPage}&size=${size}&query=${
         searchTerm || ""
-      }&state=${filter.join(",") || ""}`
+      }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+        filter.join(",") || ""
+      }`
     );
-  }, [currentPage, size, searchTerm, filter]);
+  }, [currentPage, size, searchTerm, filter, toolId]);
 
-  // fetchcompanies function
-  const fetchCompanies = async (
+  // fetch resources function
+  const fetchResources = async (
     page: number,
     searchTerm: string,
     filter: string[]
@@ -70,11 +103,13 @@ const CompanyList = ({
       const refreshToken = localStorage.getItem("refresh-token");
 
       if (refreshToken) {
-        const res: AxiosResponse<{ data: CompanyInfoType[]; count: number }> =
+        const res: AxiosResponse<{ data: Resources[]; count: number }> =
           await axiosInstance.get(
-            `/company/list?page=${page}&size=${size}&query=${
+            `/resource/list?page=${page}&size=${size}&query=${
               searchTerm || ""
-            }&state=${filter.join(",") || ""}`
+            }&categoryId=${currentCategory}&productId=${productId}&toolId=${
+              toolId || ""
+            }&filterBy=${filter.join(",").toLowerCase() || ""}`
           );
 
         return res.data;
@@ -95,18 +130,19 @@ const CompanyList = ({
 
   const { data, isFetching, error, refetch } = useQuery({
     queryKey: [
-      "companies",
+      "resources",
       currentPage ? currentPage : 1,
       searchTerm ? searchTerm : "",
       filter,
+      toolId,
     ],
-    queryFn: () => fetchCompanies(currentPage, searchTerm, filter),
+    queryFn: () => fetchResources(currentPage, searchTerm, filter),
     refetchOnWindowFocus: false,
   });
 
   const handleRefetchOnUpdate = () => refetch();
 
-  const companies = data?.data || [];
+  const resources = data?.data || [];
   const totalPage = data ? Math.ceil(data.count / size) : 1;
 
   const onPageChange = (page: number) => {
@@ -171,19 +207,16 @@ const CompanyList = ({
           <thead className="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-3">
-                Company
+                Resource Name
               </th>
               <th scope="col" className="px-6 py-3">
-                Phone
+                Tool
               </th>
               <th scope="col" className="px-6 py-3">
-                Email
+                Resource Type
               </th>
               <th scope="col" className="px-6 py-3">
-                Location
-              </th>
-              <th scope="col" className="text-center px-6 py-3">
-                Products
+                Date
               </th>
               <th
                 scope="col"
@@ -194,30 +227,35 @@ const CompanyList = ({
             </tr>
           </thead>
           <tbody>
-            {companies.map((company) => (
+            {resources.map((resource) => (
               <tr
-                key={company?._id}
+                key={resource?._id}
                 className={cn(" border-b bg-white", {
-                  "bg-blue-200": company._id === editItemId,
+                  "bg-blue-200": resource._id === editItemId,
                 })}
               >
                 <th
                   scope="row"
                   className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                 >
-                  {company?.name}
+                  {resource?.name}
                 </th>
-                <td className="px-6 py-4">{company?.phone}</td>
-                <td className="px-6 py-4">{company?.email}</td>
-                <td className="px-6 py-4">
-                  {company?.addresses?.state}, {company?.addresses?.country}
+                <td className="px-6 py-4 uppercase">{resource?.tool.name}</td>
+                <td className="px-6 py-4 uppercase flex items-center">
+                  {resource?.type.name}{" "}
+                  <span
+                    className="cursor-pointer"
+                    title={`${resource?.type?.description}`}
+                  >
+                    <Info size={16} />
+                  </span>
                 </td>
-                <td className="text-center px-6 py-4">
-                  {company?.productsCount}
+                <td className="px-6 py-4">
+                  {formatDate(resource?.created_at)}
                 </td>
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                    <Link href={`/company/${company?._id}`}>
+                    <Link href={`/resource/${resource?._id}`}>
                       <Button intent={"link"}>Details</Button>
                     </Link>
                     {/* <Button
@@ -236,17 +274,22 @@ const CompanyList = ({
       <div className="flex flex-col md:flex-row gap-5 md:gap-0 justify-between items-center my-10 px-10 lg:px-0">
         <div>
           <p className="text-slate-400">
-            Showing {companies.length} out of {data?.count}
+            Showing {resources.length} out of {data?.count}
           </p>
         </div>
+
         <div className="flex items-center justify-center md:justify-end">
           <button
             onClick={() => {
               onPageChange(currentPage - 1);
               router.push(
-                `/companies?page=${currentPage - 1}&size=${size}${
-                  searchTerm && `&query=${searchTerm}`
-                }&state=${filter.join(",") || ""}`
+                `/products/${productId}/controll-room?page=${
+                  currentPage - 1
+                }&size=${size}&query=${
+                  searchTerm || ""
+                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+                  filter.join(",") || ""
+                }`
               );
             }}
             disabled={currentPage <= 1}
@@ -262,9 +305,11 @@ const CompanyList = ({
             ) : (
               <Link
                 key={page}
-                href={`/companies?page=${page}&size=${size}${
-                  searchTerm && `&query=${searchTerm}`
-                }&state=${filter.join(",") || ""}`}
+                href={`/products/${productId}/controll-room?page=${page}&size=${size}&query=${
+                  searchTerm || ""
+                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+                  filter.join(",") || ""
+                }`}
               >
                 <Button
                   onClick={() => onPageChange(currentPage)}
@@ -279,9 +324,13 @@ const CompanyList = ({
             onClick={() => {
               onPageChange(currentPage + 1);
               router.push(
-                `/companies?page=${currentPage + 1}&size=${size}${
-                  searchTerm && `&query=${searchTerm}`
-                }&state=${filter.join(",") || ""}`
+                `/products/${productId}/controll-room?page=${
+                  currentPage + 1
+                }&size=${size}&query=${
+                  searchTerm || ""
+                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+                  filter.join(",") || ""
+                }`
               );
             }}
             disabled={currentPage >= totalPage}
@@ -293,16 +342,16 @@ const CompanyList = ({
       </div>
 
       {/* Edit Company Drawer */}
-      {isDrawerOpen && (
+      {/* {isDrawerOpen && (
         <EditCompany
           isOpen={isDrawerOpen}
           editItemId={editItemId}
           onClose={handleDrawerClose}
           onUpdate={handleRefetchOnUpdate}
         />
-      )}
+      )} */}
     </div>
   );
 };
 
-export default CompanyList;
+export default ResourceList;

@@ -313,3 +313,55 @@ export type TechnologiesByCategory = {
   toolName: "Jira";
   logo: "https://pattern50.s3.amazonaws.com/Jira-logo_P50-m5gB.png";
 };
+
+export type Resources = {
+  _id: string;
+  created_by: string;
+  name: string;
+  productId: string;
+  categoryId: string;
+  typeId: string;
+  toolId: string;
+  toolPurpose: string;
+  instruction: string;
+  files: {
+    url: string;
+    name: string;
+    storageId: string;
+    vectorStorageId: string;
+    uploadedDate: string;
+    _id: string;
+  }[];
+  links: any[];
+  clientId: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  type: {
+    _id: string;
+    created_by: string;
+    name: string;
+    description: string;
+    resourceCategory: string;
+    clientId: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+  tool: {
+    _id: string;
+    created_by: string;
+    name: string;
+    website: string;
+    logo: string;
+    logoKey: string;
+    logoName: string;
+    status: string;
+    categoryId: string;
+    typeId: string;
+    clientId: string;
+    created_at: string;
+    updated_at: string;
+    __v: number;
+  };
+};
