@@ -305,3 +305,11 @@ export type Categories = {
   updated_at: string;
   __v: number;
 };
+
+export type TechnologiesByCategory = {
+  categoryId: "662b4c1a0b8e7c936cbc0f91";
+  categoryName: "What This Product Does";
+  toolId: "66228d55aae1e76863378600";
+  toolName: "Jira";
+  logo: "https://pattern50.s3.amazonaws.com/Jira-logo_P50-m5gB.png";
+};

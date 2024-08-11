@@ -1,5 +1,10 @@
 "use client";
-import { Categories, CompanyInfoType, ProductInfo } from "@/types/types";
+import {
+  Categories,
+  CompanyInfoType,
+  ProductInfo,
+  TechnologiesByCategory,
+} from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { useParams, useSearchParams } from "next/navigation";
@@ -26,6 +31,36 @@ const ControllRoom = () => {
   const [currentCategory, setCurrentCategory] = useState<string>(
     "662b4c1a0b8e7c936cbc0f91"
   );
+
+  const formatDate = (isoString: string) => {
+    if (!isoString) return "Invalid Date";
+
+    const date = new Date(isoString);
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = monthNames[date.getMonth()];
+
+    return `${day} ${month} ${year}`;
+  };
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
 
   // Synchronize currentCategory with URL on component mount
   useEffect(() => {
@@ -84,37 +119,23 @@ const ControllRoom = () => {
 
       return response.data;
     },
+    refetchOnWindowFocus: false,
   });
 
-  const formatDate = (isoString: string) => {
-    if (!isoString) return "Invalid Date";
+  // get technologies based on category and product
+  const { data: technologiesById } = useQuery({
+    queryKey: ["getTechnologies", productDetail?._id, currentCategory],
+    queryFn: async () => {
+      const res: AxiosResponse<TechnologiesByCategory[]> =
+        await axiosInstance.get(
+          `resource/tools/resource-category?categoryId=${currentCategory}&productId=${productDetail?._id}`
+        );
 
-    const date = new Date(isoString);
-    const day = date.getDate();
-    const year = date.getFullYear();
-
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = monthNames[date.getMonth()];
-
-    return `${day} ${month} ${year}`;
-  };
-
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
+      return res.data;
+    },
+    enabled: !!currentCategory && !!productDetail?._id,
+    refetchOnWindowFocus: false,
+  });
 
   if (isFetching) {
     return (
@@ -176,6 +197,31 @@ const ControllRoom = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Technologies based on category and product */}
+      <div className="my-12">
+        <h2 className="text-2xl font-bold">Technologies</h2>
+        <div className="my-5 flex gap-2">
+          {technologiesById?.length === 0 && (
+            <p className="text-slate-400 font-medium">Empty!</p>
+          )}
+          {technologiesById &&
+            technologiesById.length > 0 &&
+            technologiesById?.map((technology, idx) => (
+              <Button intent={"secondary"} key={idx}>
+                <div className="flex gap-1 items-center justify-center">
+                  <Image
+                    src={technology?.logo}
+                    alt={technology?.categoryName}
+                    width={24}
+                    height={24}
+                  />
+                  <p>{technology?.toolName}</p>
+                </div>
+              </Button>
+            ))}
         </div>
       </div>
     </div>

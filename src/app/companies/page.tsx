@@ -92,7 +92,7 @@ const Companies = () => {
   const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="p-5 relative w-full lg:w-[78vw]">
+    <div className="p-5 relative w-full">
       <div className="visible lg:invisible py-5 lg:py-0">
         <List
           onClick={handleSidebarVisibility}
