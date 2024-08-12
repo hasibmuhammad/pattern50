@@ -42,7 +42,7 @@ const ControllRoom = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState<string[]>([]);
@@ -108,28 +108,30 @@ const ControllRoom = () => {
   }, [searchParams, setValue]);
 
   // Handle URL changes when the user changes state
-  // useEffect(() => {
-  //   if (currentCategory) {
-  //     router.replace(
-  //       `/products/${id}/controll-room?page=1&size=${size}&query=${
-  //         searchTerm || ""
-  //       }&toolId=${toolId}&categoryId=${currentCategory}&filterBy=${
-  //         filter.join(",") || ""
-  //       }`
-  //     );
-  //   }
-  // }, [currentCategory, searchTerm, size, filter, toolId]);
+  useEffect(() => {
+    if (currentCategory) {
+      router.replace(
+        `/products/${id}/controll-room?page=${currentPage}&size=${size}&query=${
+          searchTerm || ""
+        }&toolId=${toolId}&categoryId=${currentCategory}&filterBy=${
+          filter.join(",") || ""
+        }`
+      );
+    }
+  }, [currentCategory, searchTerm, size, filter, toolId]);
 
   const handleCategoryClick = (categoryId: string) => {
     setCurrentCategory(categoryId);
     setToolId("");
     setFilter([]);
+    setCurrentPage(1);
     router.push(
       `/products/${id}/controll-room?page=1&size=10&query=&toolId=&categoryId=${categoryId}&filterBy=`
     );
   };
 
   const handleToolClick = (toolId: string) => {
+    setCurrentPage(1);
     setToolId((prevToolId) => {
       const existingToolIds = prevToolId ? prevToolId.split(",") : [];
 
@@ -317,8 +319,15 @@ const ControllRoom = () => {
         <h2 className="text-2xl font-bold">Technologies</h2>
         {/* <Skeleton /> */}
         <div className="my-5 flex gap-2">
-          {technologyLoading && <Skeleton />}
-          {sortedTools && sortedTools.length > 0 ? (
+          {technologyLoading ? (
+            <Skeleton />
+          ) : sortedTools?.length === 0 ? (
+            <p className="text-slate-400 font-medium">No Technology Found!</p>
+          ) : (
+            ""
+          )}
+          {sortedTools &&
+            sortedTools.length > 0 &&
             sortedTools?.map((technology, idx) => (
               <Button
                 onClick={() => handleToolClick(technology?.toolId)}
@@ -340,10 +349,7 @@ const ControllRoom = () => {
                   <p>{technology?.toolName}</p>
                 </div>
               </Button>
-            ))
-          ) : (
-            <p className="text-slate-400 font-medium">No Technology Found!</p>
-          )}
+            ))}
         </div>
       </div>
 
