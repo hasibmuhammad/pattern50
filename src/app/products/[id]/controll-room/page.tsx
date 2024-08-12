@@ -83,6 +83,7 @@ const ControllRoom = () => {
 
     const query = searchParams.get("query");
     const filterBy = searchParams.get("filterBy");
+    const toolIds = searchParams.get("toolId");
 
     if (query) {
       setSearchTerm(query);
@@ -98,26 +99,46 @@ const ControllRoom = () => {
     } else {
       setFilter([]);
     }
+
+    if (toolIds) {
+      setToolId(toolIds);
+    }
   }, [searchParams, setValue]);
 
   const handleCategoryClick = (categoryId: string) => {
     setCurrentCategory(categoryId);
     router.push(
-      `/products/${id}/controll-room?page=1&size=10&query=&categoryId=${categoryId}&filterBy=${
-        filter.join(",") || ""
-      }`
+      `/products/${id}/controll-room?page=1&size=10&query=&categoryId=${categoryId}&filterBy=`
     );
   };
 
   const handleToolClick = (toolId: string) => {
-    setToolId(toolId);
-    router.push(
-      `/products/${id}/controll-room?page=1&size=10&query=${
-        searchTerm || ""
-      }&categoryId=${currentCategory}&toolId=${toolId || ""}&filterBy=${
-        filter.join(",") || ""
-      }`
-    );
+    setToolId((prevToolId) => {
+      const existingToolIds = prevToolId ? prevToolId.split(",") : [];
+
+      if (existingToolIds.includes(toolId)) {
+        const updatedToolIds = existingToolIds.filter((id) => id !== toolId);
+
+        router.push(
+          `/products/${id}/controll-room?page=1&size=10&query=${
+            searchTerm || ""
+          }&categoryId=${currentCategory}&toolId=${updatedToolIds.join(
+            ","
+          )}&filterBy=${filter.join(",") || ""}`
+        );
+        return updatedToolIds.join(",");
+      } else {
+        const updatedToolIds = [...existingToolIds, toolId];
+        router.push(
+          `/products/${id}/controll-room?page=1&size=10&query=${
+            searchTerm || ""
+          }&categoryId=${currentCategory}&toolId=${updatedToolIds.join(
+            ","
+          )}&filterBy=${filter.join(",") || ""}`
+        );
+        return updatedToolIds.join(",");
+      }
+    });
   };
 
   // get product details
@@ -285,6 +306,11 @@ const ControllRoom = () => {
                 onClick={() => handleToolClick(technology?.toolId)}
                 intent={"secondary"}
                 key={idx}
+                className={cn({
+                  "border-2 border-blue-500": toolId.includes(
+                    technology?.toolId
+                  ),
+                })}
               >
                 <div className="flex gap-1 items-center justify-center">
                   <Image
