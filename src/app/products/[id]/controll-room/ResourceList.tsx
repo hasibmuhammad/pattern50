@@ -3,11 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Info } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
-import { CompanyInfoType, Resources } from "@/types/types";
+import { Resources } from "@/types/types";
 import axiosInstance from "../../../../../lib/axiosInstance";
 import Button from "@/components/button/button";
 import { cn } from "../../../../../utils/cn";
@@ -57,20 +56,13 @@ const ResourceList = ({
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState<string[]>(initialFilter);
 
-  // Edit company things
+  // handle Edit Click
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editItemId, setEditItemId] = useState("");
   const handleDrawerOpen = () => setIsDrawerOpen(true);
-
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);
     setEditItemId("");
-  };
-
-  // handleEdit Click
-  const handleEditClick = (companyId: string) => {
-    setEditItemId(companyId);
-    handleDrawerOpen();
   };
 
   useEffect(() => {
@@ -92,7 +84,6 @@ const ResourceList = ({
     );
   }, [currentPage, size, searchTerm, filter, toolId]);
 
-  // fetch resources function
   const fetchResources = async (
     page: number,
     searchTerm: string,
@@ -141,6 +132,14 @@ const ResourceList = ({
     refetchOnWindowFocus: false,
   });
 
+  useEffect(() => {
+    if (data) {
+      setCurrentPage((prevPage) =>
+        Math.min(prevPage, Math.ceil(data.count / size))
+      );
+    }
+  }, [data, size]);
+
   const handleRefetchOnUpdate = () => refetch();
 
   const resources = data?.data || [];
@@ -148,6 +147,13 @@ const ResourceList = ({
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
+    router.push(
+      `/products/${productId}/controll-room?page=${page}&size=${size}&query=${
+        searchTerm || ""
+      }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+        filter.join(",") || ""
+      }`
+    );
     refetch();
   };
 
@@ -196,7 +202,7 @@ const ResourceList = ({
   if (error) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center">
-        <p>Error loading companies. Please try again later.</p>
+        <p>Error loading resources. Please try again later.</p>
       </div>
     );
   }
@@ -233,7 +239,7 @@ const ResourceList = ({
                 {resources.map((resource) => (
                   <tr
                     key={resource?._id}
-                    className={cn(" border-b bg-white", {
+                    className={cn("border-b bg-white", {
                       "bg-blue-200": resource._id === editItemId,
                     })}
                   >
@@ -259,43 +265,33 @@ const ResourceList = ({
                       {formatDate(resource?.created_at)}
                     </td>
                     <td className="sticky right-0 bg-white">
-                      <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                        <Link href={`/resource/${resource?._id}`}>
-                          <Button intent={"link"}>Details</Button>
-                        </Link>
-                        {/* <Button
-                      intent={"link"}
-                      onClick={() => handleEditClick(company?._id)}
-                    >
-                      Edit
-                    </Button> */}
-                      </div>
+                      <Button
+                        intent={"link"}
+                        onClick={() => {
+                          setEditItemId(resource._id);
+                          handleDrawerOpen();
+                        }}
+                      >
+                        Edit
+                      </Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="flex flex-col md:flex-row gap-5 md:gap-0 justify-between items-center my-10 px-10 lg:px-0">
-            <div>
-              <p className="text-slate-400">
-                Showing {resources.length} out of {data?.count}
-              </p>
+
+          <div className="flex justify-between items-center mt-4">
+            <div className="text-gray-600">
+              Showing {resources.length} of {data?.count} resources
             </div>
 
             <div className="flex items-center justify-center md:justify-end">
               <button
                 onClick={() => {
-                  onPageChange(currentPage - 1);
-                  router.push(
-                    `/products/${productId}/controll-room?page=${
-                      currentPage - 1
-                    }&size=${size}&query=${
-                      searchTerm || ""
-                    }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
-                      filter.join(",") || ""
-                    }`
-                  );
+                  if (currentPage > 1) {
+                    onPageChange(currentPage - 1);
+                  }
                 }}
                 disabled={currentPage <= 1}
                 className="mx-1 px-4 bg-white text-black disabled:opacity-50"
@@ -317,7 +313,7 @@ const ResourceList = ({
                     }`}
                   >
                     <Button
-                      onClick={() => onPageChange(currentPage)}
+                      onClick={() => onPageChange(+page)}
                       state={page === currentPage ? "active" : "inactive"}
                     >
                       {page}
@@ -327,16 +323,9 @@ const ResourceList = ({
               )}
               <button
                 onClick={() => {
-                  onPageChange(currentPage + 1);
-                  router.push(
-                    `/products/${productId}/controll-room?page=${
-                      currentPage + 1
-                    }&size=${size}&query=${
-                      searchTerm || ""
-                    }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
-                      filter.join(",") || ""
-                    }`
-                  );
+                  if (currentPage < totalPage) {
+                    onPageChange(currentPage + 1);
+                  }
                 }}
                 disabled={currentPage >= totalPage}
                 className="mx-1 px-4 bg-white text-black disabled:opacity-50"
@@ -349,16 +338,6 @@ const ResourceList = ({
       ) : (
         <p className="text-slate-400 font-medium">No resources found!</p>
       )}
-
-      {/* Edit Company Drawer */}
-      {/* {isDrawerOpen && (
-        <EditCompany
-          isOpen={isDrawerOpen}
-          editItemId={editItemId}
-          onClose={handleDrawerClose}
-          onUpdate={handleRefetchOnUpdate}
-        />
-      )} */}
     </div>
   );
 };

@@ -1,7 +1,9 @@
 "use client";
 import {
   Categories,
+  CompanyInfoType,
   ProductInfo,
+  Resources,
   ResourceTypes,
   TechnologiesByCategory,
 } from "@/types/types";
@@ -22,6 +24,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import ResourceList from "./ResourceList";
+import Skeleton from "@/components/Skeleton";
 
 type SearchForm = {
   term: string;
@@ -39,15 +42,22 @@ const ControllRoom = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState<string[]>([]);
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const handleDrawerOpen = () => setIsDrawerOpen(true);
+  const handleDrawerClose = () => setIsDrawerOpen(false);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
+
   const [currentCategory, setCurrentCategory] = useState<string>(
     "662b4c1a0b8e7c936cbc0f91"
   );
+
   const [toolId, setToolId] = useState("");
 
   const {
@@ -58,11 +68,20 @@ const ControllRoom = () => {
     formState: { errors, isSubmitting },
   } = useForm<SearchForm>({ resolver: zodResolver(SearchSchema) });
 
-  const syncWithUrl = () => {
+  useEffect(() => {
     const categoryIdFromUrl = searchParams.get("categoryId");
     const query = searchParams.get("query");
     const filterBy = searchParams.get("filterBy");
     const toolIds = searchParams.get("toolId");
+
+    // Sync state with URL parameters only once on mount
+    if (!categoryIdFromUrl && currentCategory) {
+      router.replace(
+        `/products/${id}/controll-room?page=1&size=${size}&query=${
+          searchTerm || ""
+        }&categoryId=${currentCategory}&filterBy=${filter.join(",") || ""}`
+      );
+    }
 
     if (categoryIdFromUrl) {
       setCurrentCategory(categoryIdFromUrl);
@@ -86,27 +105,28 @@ const ControllRoom = () => {
     if (toolIds) {
       setToolId(toolIds);
     }
-  };
-
-  useEffect(() => {
-    syncWithUrl();
-  }, [searchParams]);
+  }, [searchParams, setValue]);
 
   // Handle URL changes when the user changes state
-  useEffect(() => {
-    router.replace(
-      `/products/${id}/controll-room?page=${currentPage}&size=${size}&query=${
-        searchTerm || ""
-      }&toolId=${toolId}&categoryId=${currentCategory}&filterBy=${
-        filter.join(",") || ""
-      }`
-    );
-  }, [currentCategory, searchTerm, currentPage, size, filter, toolId]);
+  // useEffect(() => {
+  //   if (currentCategory) {
+  //     router.replace(
+  //       `/products/${id}/controll-room?page=1&size=${size}&query=${
+  //         searchTerm || ""
+  //       }&toolId=${toolId}&categoryId=${currentCategory}&filterBy=${
+  //         filter.join(",") || ""
+  //       }`
+  //     );
+  //   }
+  // }, [currentCategory, searchTerm, size, filter, toolId]);
 
   const handleCategoryClick = (categoryId: string) => {
     setCurrentCategory(categoryId);
     setToolId("");
-    setCurrentPage(1);
+    setFilter([]);
+    router.push(
+      `/products/${id}/controll-room?page=1&size=10&query=&toolId=&categoryId=${categoryId}&filterBy=`
+    );
   };
 
   const handleToolClick = (toolId: string) => {
@@ -115,16 +135,36 @@ const ControllRoom = () => {
 
       if (existingToolIds.includes(toolId)) {
         const updatedToolIds = existingToolIds.filter((id) => id !== toolId);
+
+        router.push(
+          `/products/${id}/controll-room?page=1&size=10&query=${
+            searchTerm || ""
+          }&categoryId=${currentCategory}&toolId=${updatedToolIds.join(
+            ","
+          )}&filterBy=${filter.join(",") || ""}`
+        );
         return updatedToolIds.join(",");
       } else {
-        return [...existingToolIds, toolId].join(",");
+        const updatedToolIds = [...existingToolIds, toolId];
+        router.push(
+          `/products/${id}/controll-room?page=1&size=10&query=${
+            searchTerm || ""
+          }&categoryId=${currentCategory}&toolId=${updatedToolIds.join(
+            ","
+          )}&filterBy=${filter.join(",") || ""}`
+        );
+        return updatedToolIds.join(",");
       }
     });
-    setCurrentPage(1);
   };
 
   // get product details
-  const { data: productDetail, isFetching } = useQuery({
+  const {
+    data: productDetail,
+    isFetching,
+    isFetched,
+    refetch,
+  } = useQuery({
     queryKey: ["productDetail", id],
     queryFn: async () => {
       if (id) {
@@ -159,7 +199,7 @@ const ControllRoom = () => {
   });
 
   // get technologies based on category and product
-  const { data: technologiesById } = useQuery({
+  const { data: technologiesById, isLoading: technologyLoading } = useQuery({
     queryKey: ["getTechnologies", productDetail?._id, currentCategory],
     queryFn: async () => {
       const res: AxiosResponse<TechnologiesByCategory[]> =
@@ -173,9 +213,9 @@ const ControllRoom = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Sorting the technologies
-  const sortedTechnologies =
-    technologiesById?.sort((a, b) => a.toolName.localeCompare(b.toolName)) ||
+  // sort the technologiesId
+  const sortedTools =
+    technologiesById?.sort((a, b) => a?.toolName.localeCompare(b.toolName)) ||
     [];
 
   // get resource types based on category
@@ -193,7 +233,6 @@ const ControllRoom = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Tool types
   const types = resourceTypes?.types?.map((type) => {
     return {
       label: type?.name,
@@ -201,10 +240,12 @@ const ControllRoom = () => {
     };
   });
 
-  // search
   const search: SubmitHandler<SearchForm> = (data) => {
     setSearchTerm(data.term);
-    setCurrentPage(1);
+
+    router.push(
+      `/products?page=1&query=${data.term}&filterBy=${filter.join(",")}`
+    );
   };
 
   if (isFetching) {
@@ -219,7 +260,7 @@ const ControllRoom = () => {
     <div className="p-5 relative w-full">
       <div className="visible lg:invisible py-5 lg:py-0">
         <List
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          onClick={handleSidebarVisibility}
           className="cursor-pointer"
           size={32}
         />
@@ -228,7 +269,7 @@ const ControllRoom = () => {
       {/* Sidebar Component */}
       <Sidebar
         isOpen={isSidebarOpen}
-        handleSidebarVisibility={() => setIsSidebarOpen(!isSidebarOpen)}
+        handleSidebarVisibility={handleSidebarVisibility}
       />
 
       {/* Controll room start */}
@@ -245,7 +286,7 @@ const ControllRoom = () => {
         <div className="my-5 flex gap-2">
           {categories?.map((category) => (
             <div
-              key={category._id}
+              key={category._id} // Adding a unique key to each category item
               className={cn(
                 "bg-slate-100 min-w-24 w-full h-[104px] rounded-md flex items-center justify-center px-8 py-4 cursor-pointer",
                 {
@@ -274,13 +315,11 @@ const ControllRoom = () => {
       {/* Technologies based on category and product */}
       <div className="my-12">
         <h2 className="text-2xl font-bold">Technologies</h2>
+        {/* <Skeleton /> */}
         <div className="my-5 flex gap-2">
-          {sortedTechnologies?.length === 0 && (
-            <p className="text-slate-400 font-medium">No Technology Found!</p>
-          )}
-          {sortedTechnologies &&
-            sortedTechnologies.length > 0 &&
-            sortedTechnologies?.map((technology, idx) => (
+          {technologyLoading && <Skeleton />}
+          {sortedTools && sortedTools.length > 0 ? (
+            sortedTools?.map((technology, idx) => (
               <Button
                 onClick={() => handleToolClick(technology?.toolId)}
                 intent={"secondary"}
@@ -301,11 +340,13 @@ const ControllRoom = () => {
                   <p>{technology?.toolName}</p>
                 </div>
               </Button>
-            ))}
+            ))
+          ) : (
+            <p className="text-slate-400 font-medium">No Technology Found!</p>
+          )}
         </div>
       </div>
 
-      {/* Search and Filter Section */}
       <div>
         <form onSubmit={handleSubmit(search)}>
           <div className="flex flex-col-reverse md:flex-row items-center gap-5">
@@ -340,7 +381,7 @@ const ControllRoom = () => {
             </div>
             <Button
               className="flex items-center gap-1"
-              onClick={() => setIsDrawerOpen(true)}
+              onClick={handleDrawerOpen}
               type="button"
             >
               <PlusCircle weight="bold" size={24} />
@@ -350,7 +391,6 @@ const ControllRoom = () => {
         </form>
       </div>
 
-      {/* Resource List */}
       {isSubmitting ? (
         <div>
           <Loader />
