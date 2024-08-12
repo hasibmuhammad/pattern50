@@ -1,9 +1,7 @@
 "use client";
 import {
   Categories,
-  CompanyInfoType,
   ProductInfo,
-  Resources,
   ResourceTypes,
   TechnologiesByCategory,
 } from "@/types/types";
@@ -45,18 +43,11 @@ const ControllRoom = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState<string[]>([]);
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const handleDrawerOpen = () => setIsDrawerOpen(true);
-  const handleDrawerClose = () => setIsDrawerOpen(false);
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const handleSidebarVisibility = () => setIsSidebarOpen(!isSidebarOpen);
-
   const [currentCategory, setCurrentCategory] = useState<string>(
     "662b4c1a0b8e7c936cbc0f91"
   );
-
   const [toolId, setToolId] = useState("");
 
   const {
@@ -67,23 +58,15 @@ const ControllRoom = () => {
     formState: { errors, isSubmitting },
   } = useForm<SearchForm>({ resolver: zodResolver(SearchSchema) });
 
-  // Synchronize currentCategory with URL on component mount
-  useEffect(() => {
+  const syncWithUrl = () => {
     const categoryIdFromUrl = searchParams.get("categoryId");
-    if (categoryIdFromUrl) {
-      setCurrentCategory(categoryIdFromUrl);
-    } else if (currentCategory) {
-      // If no categoryId in URL, set the URL to the currentCategory
-      router.push(
-        `/products/${id}/controll-room?page=${currentPage}&size=${size}&query=${
-          searchTerm || ""
-        }&categoryId=${currentCategory}&filterBy=${filter.join(",") || ""}`
-      );
-    }
-
     const query = searchParams.get("query");
     const filterBy = searchParams.get("filterBy");
     const toolIds = searchParams.get("toolId");
+
+    if (categoryIdFromUrl) {
+      setCurrentCategory(categoryIdFromUrl);
+    }
 
     if (query) {
       setSearchTerm(query);
@@ -103,14 +86,27 @@ const ControllRoom = () => {
     if (toolIds) {
       setToolId(toolIds);
     }
-  }, [searchParams, setValue]);
+  };
+
+  useEffect(() => {
+    syncWithUrl();
+  }, [searchParams]);
+
+  // Handle URL changes when the user changes state
+  useEffect(() => {
+    router.replace(
+      `/products/${id}/controll-room?page=${currentPage}&size=${size}&query=${
+        searchTerm || ""
+      }&toolId=${toolId}&categoryId=${currentCategory}&filterBy=${
+        filter.join(",") || ""
+      }`
+    );
+  }, [currentCategory, searchTerm, currentPage, size, filter, toolId]);
 
   const handleCategoryClick = (categoryId: string) => {
     setCurrentCategory(categoryId);
     setToolId("");
-    router.push(
-      `/products/${id}/controll-room?page=1&size=10&query=&categoryId=${categoryId}&filterBy=`
-    );
+    setCurrentPage(1);
   };
 
   const handleToolClick = (toolId: string) => {
@@ -119,36 +115,16 @@ const ControllRoom = () => {
 
       if (existingToolIds.includes(toolId)) {
         const updatedToolIds = existingToolIds.filter((id) => id !== toolId);
-
-        router.push(
-          `/products/${id}/controll-room?page=1&size=10&query=${
-            searchTerm || ""
-          }&categoryId=${currentCategory}&toolId=${updatedToolIds.join(
-            ","
-          )}&filterBy=${filter.join(",") || ""}`
-        );
         return updatedToolIds.join(",");
       } else {
-        const updatedToolIds = [...existingToolIds, toolId];
-        router.push(
-          `/products/${id}/controll-room?page=1&size=10&query=${
-            searchTerm || ""
-          }&categoryId=${currentCategory}&toolId=${updatedToolIds.join(
-            ","
-          )}&filterBy=${filter.join(",") || ""}`
-        );
-        return updatedToolIds.join(",");
+        return [...existingToolIds, toolId].join(",");
       }
     });
+    setCurrentPage(1);
   };
 
   // get product details
-  const {
-    data: productDetail,
-    isFetching,
-    isFetched,
-    refetch,
-  } = useQuery({
+  const { data: productDetail, isFetching } = useQuery({
     queryKey: ["productDetail", id],
     queryFn: async () => {
       if (id) {
@@ -197,6 +173,11 @@ const ControllRoom = () => {
     refetchOnWindowFocus: false,
   });
 
+  // Sorting the technologies
+  const sortedTechnologies =
+    technologiesById?.sort((a, b) => a.toolName.localeCompare(b.toolName)) ||
+    [];
+
   // get resource types based on category
   const { data: resourceTypes } = useQuery({
     queryKey: ["resourceTypes", currentCategory],
@@ -212,6 +193,7 @@ const ControllRoom = () => {
     refetchOnWindowFocus: false,
   });
 
+  // Tool types
   const types = resourceTypes?.types?.map((type) => {
     return {
       label: type?.name,
@@ -219,14 +201,10 @@ const ControllRoom = () => {
     };
   });
 
-  console.log(types);
-
+  // search
   const search: SubmitHandler<SearchForm> = (data) => {
     setSearchTerm(data.term);
-
-    router.push(
-      `/products?page=1&query=${data.term}&filterBy=${filter.join(",")}`
-    );
+    setCurrentPage(1);
   };
 
   if (isFetching) {
@@ -241,7 +219,7 @@ const ControllRoom = () => {
     <div className="p-5 relative w-full">
       <div className="visible lg:invisible py-5 lg:py-0">
         <List
-          onClick={handleSidebarVisibility}
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="cursor-pointer"
           size={32}
         />
@@ -250,7 +228,7 @@ const ControllRoom = () => {
       {/* Sidebar Component */}
       <Sidebar
         isOpen={isSidebarOpen}
-        handleSidebarVisibility={handleSidebarVisibility}
+        handleSidebarVisibility={() => setIsSidebarOpen(!isSidebarOpen)}
       />
 
       {/* Controll room start */}
@@ -267,7 +245,7 @@ const ControllRoom = () => {
         <div className="my-5 flex gap-2">
           {categories?.map((category) => (
             <div
-              key={category._id} // Adding a unique key to each category item
+              key={category._id}
               className={cn(
                 "bg-slate-100 min-w-24 w-full h-[104px] rounded-md flex items-center justify-center px-8 py-4 cursor-pointer",
                 {
@@ -297,12 +275,12 @@ const ControllRoom = () => {
       <div className="my-12">
         <h2 className="text-2xl font-bold">Technologies</h2>
         <div className="my-5 flex gap-2">
-          {technologiesById?.length === 0 && (
+          {sortedTechnologies?.length === 0 && (
             <p className="text-slate-400 font-medium">No Technology Found!</p>
           )}
-          {technologiesById &&
-            technologiesById.length > 0 &&
-            technologiesById?.map((technology, idx) => (
+          {sortedTechnologies &&
+            sortedTechnologies.length > 0 &&
+            sortedTechnologies?.map((technology, idx) => (
               <Button
                 onClick={() => handleToolClick(technology?.toolId)}
                 intent={"secondary"}
@@ -327,6 +305,7 @@ const ControllRoom = () => {
         </div>
       </div>
 
+      {/* Search and Filter Section */}
       <div>
         <form onSubmit={handleSubmit(search)}>
           <div className="flex flex-col-reverse md:flex-row items-center gap-5">
@@ -361,7 +340,7 @@ const ControllRoom = () => {
             </div>
             <Button
               className="flex items-center gap-1"
-              onClick={handleDrawerOpen}
+              onClick={() => setIsDrawerOpen(true)}
               type="button"
             >
               <PlusCircle weight="bold" size={24} />
@@ -371,6 +350,7 @@ const ControllRoom = () => {
         </form>
       </div>
 
+      {/* Resource List */}
       {isSubmitting ? (
         <div>
           <Loader />

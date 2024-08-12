@@ -3,9 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
 import { CompanyInfoType, ProductsInfo } from "@/types/types";
 import axiosInstance from "../../../lib/axiosInstance";
@@ -46,28 +45,23 @@ const ProductList = ({
   initialFilter: string[];
 }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState<string[]>(initialFilter);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Edit company things
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editItemId, setEditItemId] = useState("");
-  const handleDrawerOpen = () => setIsDrawerOpen(true);
 
+  const handleDrawerOpen = () => setIsDrawerOpen(true);
   const handleDrawerClose = () => {
     setIsDrawerOpen(false);
     setEditItemId("");
   };
 
-  // handleEdit Click
-  //   const handleEditClick = (companyId: string) => {
-  //     setEditItemId(companyId);
-  //     handleDrawerOpen();
-  //   };
-
   useEffect(() => {
+    // Synchronize state with URL parameters
     const page = parseInt(searchParams.get("page") || "1", 10);
     const size = parseInt(searchParams.get("size") || "10", 10);
     const filterBy = searchParams.get("filterBy") || "";
@@ -77,6 +71,7 @@ const ProductList = ({
   }, [searchParams]);
 
   useEffect(() => {
+    // Update URL based on state changes
     router.push(
       `/products?page=${currentPage}&size=${size}&query=${
         searchTerm || ""
@@ -84,7 +79,6 @@ const ProductList = ({
     );
   }, [currentPage, size, searchTerm, filter]);
 
-  // fetchcompanies function
   const fetchProducts = async (
     page: number,
     searchTerm: string,
@@ -101,17 +95,12 @@ const ProductList = ({
               searchTerm || ""
             }&filterBy=${filter.join(",").toLowerCase() || ""}`
           );
-
         return res.data;
       } else {
         router.push("/login");
       }
     } catch (error) {
-      if (
-        axios.isAxiosError(error) &&
-        error.response &&
-        error.response.status === 401
-      ) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
         router.push("/login");
       }
       console.error(error);
@@ -119,12 +108,7 @@ const ProductList = ({
   };
 
   const { data, isFetching, error, refetch } = useQuery({
-    queryKey: [
-      "products",
-      currentPage ? currentPage : 1,
-      searchTerm ? searchTerm : "",
-      filter,
-    ],
+    queryKey: ["products", currentPage, searchTerm, filter],
     queryFn: () => fetchProducts(currentPage, searchTerm, filter),
     refetchOnWindowFocus: false,
   });
@@ -132,13 +116,13 @@ const ProductList = ({
   const handleRefetchOnUpdate = () => refetch();
 
   const products = data?.data || [];
-
   const totalPage = data ? Math.ceil(data.count / size) : 1;
 
   const onPageChange = (page: number) => {
-    console.log(page);
-    setCurrentPage(page);
-    refetch();
+    if (page >= 1 && page <= totalPage) {
+      setCurrentPage(page);
+      refetch();
+    }
   };
 
   const getPagination = () => {
@@ -186,7 +170,7 @@ const ProductList = ({
   if (error) {
     return (
       <div className="min-h-[70vh] flex justify-center items-center">
-        <p>Error loading companies. Please try again later.</p>
+        <p>Error loading products. Please try again later.</p>
       </div>
     );
   }
@@ -220,7 +204,7 @@ const ProductList = ({
           <tbody>
             {products.map((product) => (
               <tr
-                key={product?._id}
+                key={product._id}
                 className={cn(" border-b bg-white", {
                   "bg-blue-200": product._id === editItemId,
                 })}
@@ -229,18 +213,18 @@ const ProductList = ({
                   scope="row"
                   className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                 >
-                  {product?.name}
+                  {product.name}
                 </th>
-                <td className="px-6 py-4">{product?.company?.name}</td>
-                <td className="px-6 py-4">{formatDate(product?.created_at)}</td>
+                <td className="px-6 py-4">{product.company?.name}</td>
+                <td className="px-6 py-4">{formatDate(product.created_at)}</td>
                 <td className="px-6 py-4 capitalize font-bold text-blue-600">
-                  {product?.contract?.status}
+                  {product.contract?.status}
                 </td>
                 <td className="sticky right-0 bg-white">
                   <div className="flex items-center justify-center px-6 py-4 space-x-4">
                     <Button intent={"link"}>Details</Button>
                     <Link
-                      href={`/products/${product?._id}/controll-room?page=1&size=10&query=&filterBy=`}
+                      href={`/products/${product._id}/controll-room?page=1&size=10&query=&filterBy=`}
                     >
                       <Button intent={"link"}>Controll room</Button>
                     </Link>
@@ -259,14 +243,7 @@ const ProductList = ({
         </div>
         <div className="flex items-center justify-center md:justify-end">
           <button
-            onClick={() => {
-              onPageChange(currentPage - 1);
-              router.push(
-                `/products?page=${currentPage - 1}&size=${size}${
-                  searchTerm && `&query=${searchTerm}`
-                }&filterBy=}`
-              );
-            }}
+            onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage <= 1}
             className="mx-1 px-4 bg-white text-black disabled:opacity-50"
           >
@@ -285,7 +262,7 @@ const ProductList = ({
                 }&filterBy=${filter.join(",") || ""}`}
               >
                 <Button
-                  onClick={() => onPageChange(currentPage)}
+                  onClick={() => onPageChange(page as number)}
                   state={page === currentPage ? "active" : "inactive"}
                 >
                   {page}
@@ -294,14 +271,7 @@ const ProductList = ({
             )
           )}
           <button
-            onClick={() => {
-              onPageChange(currentPage + 1);
-              router.push(
-                `/products?page=${currentPage + 1}&size=${size}${
-                  searchTerm && `&query=${searchTerm}`
-                }&filterBy=${filter.join(",") || ""}`
-              );
-            }}
+            onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPage}
             className="mx-1 px-4 bg-white text-black disabled:opacity-50"
           >
