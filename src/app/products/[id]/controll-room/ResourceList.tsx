@@ -203,144 +203,152 @@ const ResourceList = ({
 
   return (
     <div className="relative sm:rounded-lg">
-      <div className="w-full overflow-x-scroll lg:overflow-hidden">
-        <table className="w-full text-sm text-left">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Resource Name
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Tool
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Resource Type
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Date
-              </th>
-              <th
-                scope="col"
-                className="sticky bg-white md:bg-gray-50 right-0 px-6 py-3 text-center"
-              >
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {resources.map((resource) => (
-              <tr
-                key={resource?._id}
-                className={cn(" border-b bg-white", {
-                  "bg-blue-200": resource._id === editItemId,
-                })}
-              >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-                >
-                  {resource?.name}
-                </th>
-                <td className="px-6 py-4 uppercase">{resource?.tool.name}</td>
-                <td className="px-6 py-4 uppercase flex items-center">
-                  {resource?.type.name}{" "}
-                  <span
-                    className="cursor-pointer"
-                    title={`${resource?.type?.description}`}
+      {!isFetching && resources?.length !== 0 ? (
+        <>
+          <div className="w-full overflow-x-scroll lg:overflow-hidden">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3">
+                    Resource Name
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Tool
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Resource Type
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="sticky bg-white md:bg-gray-50 right-0 px-6 py-3 text-center"
                   >
-                    <Info size={16} />
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {formatDate(resource?.created_at)}
-                </td>
-                <td className="sticky right-0 bg-white">
-                  <div className="flex items-center justify-center px-6 py-4 space-x-4">
-                    <Link href={`/resource/${resource?._id}`}>
-                      <Button intent={"link"}>Details</Button>
-                    </Link>
-                    {/* <Button
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {resources.map((resource) => (
+                  <tr
+                    key={resource?._id}
+                    className={cn(" border-b bg-white", {
+                      "bg-blue-200": resource._id === editItemId,
+                    })}
+                  >
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                    >
+                      {resource?.name}
+                    </th>
+                    <td className="px-6 py-4 uppercase">
+                      {resource?.tool.name}
+                    </td>
+                    <td className="px-6 py-4 uppercase flex items-center">
+                      {resource?.type.name}{" "}
+                      <span
+                        className="cursor-pointer"
+                        title={`${resource?.type?.description}`}
+                      >
+                        <Info size={16} />
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {formatDate(resource?.created_at)}
+                    </td>
+                    <td className="sticky right-0 bg-white">
+                      <div className="flex items-center justify-center px-6 py-4 space-x-4">
+                        <Link href={`/resource/${resource?._id}`}>
+                          <Button intent={"link"}>Details</Button>
+                        </Link>
+                        {/* <Button
                       intent={"link"}
                       onClick={() => handleEditClick(company?._id)}
                     >
                       Edit
                     </Button> */}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex flex-col md:flex-row gap-5 md:gap-0 justify-between items-center my-10 px-10 lg:px-0">
-        <div>
-          <p className="text-slate-400">
-            Showing {resources.length} out of {data?.count}
-          </p>
-        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-col md:flex-row gap-5 md:gap-0 justify-between items-center my-10 px-10 lg:px-0">
+            <div>
+              <p className="text-slate-400">
+                Showing {resources.length} out of {data?.count}
+              </p>
+            </div>
 
-        <div className="flex items-center justify-center md:justify-end">
-          <button
-            onClick={() => {
-              onPageChange(currentPage - 1);
-              router.push(
-                `/products/${productId}/controll-room?page=${
-                  currentPage - 1
-                }&size=${size}&query=${
-                  searchTerm || ""
-                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
-                  filter.join(",") || ""
-                }`
-              );
-            }}
-            disabled={currentPage <= 1}
-            className="mx-1 px-4 bg-white text-black disabled:opacity-50"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          {getPagination().map((page) =>
-            page === "..." ? (
-              <span key={page} className="mx-1 px-4 py-2">
-                ...
-              </span>
-            ) : (
-              <Link
-                key={page}
-                href={`/products/${productId}/controll-room?page=${page}&size=${size}&query=${
-                  searchTerm || ""
-                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
-                  filter.join(",") || ""
-                }`}
+            <div className="flex items-center justify-center md:justify-end">
+              <button
+                onClick={() => {
+                  onPageChange(currentPage - 1);
+                  router.push(
+                    `/products/${productId}/controll-room?page=${
+                      currentPage - 1
+                    }&size=${size}&query=${
+                      searchTerm || ""
+                    }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+                      filter.join(",") || ""
+                    }`
+                  );
+                }}
+                disabled={currentPage <= 1}
+                className="mx-1 px-4 bg-white text-black disabled:opacity-50"
               >
-                <Button
-                  onClick={() => onPageChange(currentPage)}
-                  state={page === currentPage ? "active" : "inactive"}
-                >
-                  {page}
-                </Button>
-              </Link>
-            )
-          )}
-          <button
-            onClick={() => {
-              onPageChange(currentPage + 1);
-              router.push(
-                `/products/${productId}/controll-room?page=${
-                  currentPage + 1
-                }&size=${size}&query=${
-                  searchTerm || ""
-                }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
-                  filter.join(",") || ""
-                }`
-              );
-            }}
-            disabled={currentPage >= totalPage}
-            className="mx-1 px-4 bg-white text-black disabled:opacity-50"
-          >
-            <ArrowRight size={24} />
-          </button>
-        </div>
-      </div>
+                <ArrowLeft size={24} />
+              </button>
+              {getPagination().map((page) =>
+                page === "..." ? (
+                  <span key={page} className="mx-1 px-4 py-2">
+                    ...
+                  </span>
+                ) : (
+                  <Link
+                    key={page}
+                    href={`/products/${productId}/controll-room?page=${page}&size=${size}&query=${
+                      searchTerm || ""
+                    }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+                      filter.join(",") || ""
+                    }`}
+                  >
+                    <Button
+                      onClick={() => onPageChange(currentPage)}
+                      state={page === currentPage ? "active" : "inactive"}
+                    >
+                      {page}
+                    </Button>
+                  </Link>
+                )
+              )}
+              <button
+                onClick={() => {
+                  onPageChange(currentPage + 1);
+                  router.push(
+                    `/products/${productId}/controll-room?page=${
+                      currentPage + 1
+                    }&size=${size}&query=${
+                      searchTerm || ""
+                    }&categoryId=${currentCategory}&toolId=${toolId}&filterBy=${
+                      filter.join(",") || ""
+                    }`
+                  );
+                }}
+                disabled={currentPage >= totalPage}
+                className="mx-1 px-4 bg-white text-black disabled:opacity-50"
+              >
+                <ArrowRight size={24} />
+              </button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <p className="text-slate-400 font-medium">No resources found!</p>
+      )}
 
       {/* Edit Company Drawer */}
       {/* {isDrawerOpen && (

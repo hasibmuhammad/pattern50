@@ -107,6 +107,7 @@ const ControllRoom = () => {
 
   const handleCategoryClick = (categoryId: string) => {
     setCurrentCategory(categoryId);
+    setToolId("");
     router.push(
       `/products/${id}/controll-room?page=1&size=10&query=&categoryId=${categoryId}&filterBy=`
     );
