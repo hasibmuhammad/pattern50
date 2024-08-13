@@ -25,6 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import ResourceList from "./ResourceList";
 import Skeleton from "@/components/Skeleton";
+import Link from "next/link";
 
 type SearchForm = {
   term: string;
@@ -385,14 +386,18 @@ const ControllRoom = () => {
                 }&categoryId=${currentCategory}&toolId=${toolId}&filterBy`}
               />
             </div>
-            <Button
-              className="flex items-center gap-1"
-              onClick={handleDrawerOpen}
-              type="button"
+            <Link
+              href={`/products/${productDetail?._id}/${currentCategory}/create`}
             >
-              <PlusCircle weight="bold" size={24} />
-              Add New
-            </Button>
+              <Button
+                className="flex items-center gap-1"
+                onClick={handleDrawerOpen}
+                type="button"
+              >
+                <PlusCircle weight="bold" size={24} />
+                Add New
+              </Button>
+            </Link>
           </div>
         </form>
       </div>
