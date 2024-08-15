@@ -20,7 +20,7 @@ import {
   TechnologiesByCategory,
   TechnologyCategoryType,
 } from "@/types/types";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 // Define the Zod schema for validation
 const ResourceSchema = z.object({
@@ -74,6 +74,7 @@ const CreateResource = () => {
 
   const [useLink, setUseLink] = useState(false);
   const { id: productId } = useParams();
+  const router = useRouter();
 
   const {
     register,
@@ -222,7 +223,9 @@ const CreateResource = () => {
 
   const onSubmit = (data: FormValues) => {
     create.mutate(data, {
-      onSuccess: (data) => console.log(data),
+      onSuccess: (data) => {
+        // router.back();
+      },
       onError: (error) => console.error(error),
     });
   };
@@ -471,7 +474,11 @@ const CreateResource = () => {
 
           <div className="fixed bottom-0 w-full mt-10 py-7 pr-10 bg-slate-100 flex gap-5 justify-end">
             <div className="max-w-lg mx-auto flex gap-4 justify-end items-center w-full">
-              <Button intent={"secondary"} type="button">
+              <Button
+                // onClick={() => router.back()}
+                intent={"secondary"}
+                type="button"
+              >
                 Cancel
               </Button>
               <Button type="submit">Add Resource</Button>

@@ -70,10 +70,13 @@ const ControllRoom = () => {
   } = useForm<SearchForm>({ resolver: zodResolver(SearchSchema) });
 
   useEffect(() => {
+    const page = parseInt(searchParams.get("page") || "1", 10);
     const categoryIdFromUrl = searchParams.get("categoryId");
     const query = searchParams.get("query");
     const filterBy = searchParams.get("filterBy");
     const toolIds = searchParams.get("toolId");
+
+    setCurrentPage(page);
 
     // Sync state with URL parameters only once on mount
     if (!categoryIdFromUrl && currentCategory) {
@@ -105,6 +108,10 @@ const ControllRoom = () => {
 
     if (toolIds) {
       setToolId(toolIds);
+    }
+
+    if (page) {
+      setCurrentPage(page);
     }
   }, [searchParams, setValue]);
 
