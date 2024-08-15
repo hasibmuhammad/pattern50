@@ -207,8 +207,9 @@ const CreateResource = () => {
                       type="file"
                       placeholder="Select"
                       className={cn(
-                        "file:border-none file:bg-white bg-white text-sm outline-none rounded-md px-3 w-full py-2 border"
+                        "disabled:text-slate-400 disabled:cursor-not-allowed file:disabled:cursor-not-allowed file:border-none file:bg-white bg-white text-sm outline-none rounded-md px-3 w-full py-2 border"
                       )}
+                      disabled={useLink}
                     />
                     <p className="text-slate-400 text-xs">
                       All suported files can be uploaded within 10MB.
