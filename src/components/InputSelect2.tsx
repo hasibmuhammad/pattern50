@@ -30,7 +30,7 @@ const InputSelect2 = ({
         name={name}
         render={({ field }) => (
           <Select
-            // {...field}
+            {...field}
             className={cn(
               "w-1/2",
               {
