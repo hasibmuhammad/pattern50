@@ -31,7 +31,7 @@ const InputSelect = ({
             className={cn(
               "w-1/2",
               {
-                "border rounded-md overflow-hidden border-red-500":
+                "border rounded-md border-red-500":
                   errors && errors[name] && !zipInfo,
               },
               className

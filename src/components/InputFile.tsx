@@ -10,6 +10,7 @@ type Props = {
   className?: string;
   defaultValue?: string;
   disabled?: boolean;
+  multiple?: boolean;
 };
 
 const InputFile = ({
@@ -22,6 +23,7 @@ const InputFile = ({
   className,
   defaultValue,
   disabled,
+  multiple,
 }: Props) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(e);
@@ -43,6 +45,7 @@ const InputFile = ({
       placeholder={placeholder}
       onChange={handleFileChange}
       disabled={disabled}
+      multiple={multiple}
       {...register(name)}
     />
   );

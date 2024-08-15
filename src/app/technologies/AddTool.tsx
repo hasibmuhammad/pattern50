@@ -24,7 +24,8 @@ const ToolSchema = z.object({
         .string()
         .optional()
         .refine(
-          (value) => !value || /^www\.[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/.test(value),
+          (value) =>
+            !value || /^www\.[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(value),
           {
             message: "Invalid URL format",
           }

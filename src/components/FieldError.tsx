@@ -11,7 +11,12 @@ const FieldError = ({ errors, name, tools, className }: Props) => {
   return (
     <>
       {errors && errors[name] && (
-        <p className={cn("flex items-center gap-1 text-red-600", className)}>
+        <p
+          className={cn(
+            "flex items-center gap-1 text-red-600 text-sm",
+            className
+          )}
+        >
           <Warning /> {errors[name].message}
         </p>
       )}
