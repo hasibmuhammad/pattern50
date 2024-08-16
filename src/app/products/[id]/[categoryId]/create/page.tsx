@@ -50,20 +50,22 @@ const ResourceSchema = z.object({
         Array.from(files).every((file) => file?.size <= 10 * 1024 * 1024),
       "File must be under 10MB."
     ),
-  links: z.array(
-    z.object({
-      link: z
-        .string()
-        .optional()
-        .refine(
-          (value) =>
-            !value || /^www\.[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(value),
-          {
-            message: "Invalid URL format",
-          }
-        ),
-    })
-  ),
+  links: z
+    .array(
+      z.object({
+        link: z
+          .string()
+          .optional()
+          .refine(
+            (value) =>
+              !value || /^www\.[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$/.test(value),
+            {
+              message: "Invalid URL format",
+            }
+          ),
+      })
+    )
+    .optional(),
 });
 
 type FormValues = z.infer<typeof ResourceSchema>;
@@ -76,6 +78,13 @@ const CreateResource = () => {
   const { id: productId } = useParams();
   const router = useRouter();
 
+  const [linkInputs, setLinkInputs] = useState([{ link: "" }]);
+
+  const handleAddMore = () => {
+    // add more link input field here
+    setLinkInputs([...linkInputs, { link: "" }]);
+  };
+
   const {
     register,
     watch,
@@ -83,44 +92,15 @@ const CreateResource = () => {
     getValues,
     handleSubmit,
     control,
-    formState: { errors, isValid },
-  } = useForm<FormValues>({
-    resolver: zodResolver(ResourceSchema),
-    defaultValues: {
-      name: "",
-      category: {
-        label: "",
-        value: "",
-      },
-      type: {
-        label: "",
-        value: "",
-      },
-      tool: {
-        label: "",
-        value: "",
-      },
-      purpose: "",
-      instruction: "",
-      files: [],
-      links: [{ link: "" }],
-    },
-    mode: "onChange",
-  });
+    formState: { errors },
+  } = useForm<FormValues>({ resolver: zodResolver(ResourceSchema) });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "links",
-  });
-
-  const handleAddMore = () => {
-    append({ link: "" });
-  };
+  console.log(errors);
 
   const category = watch("category");
   useEffect(() => {
     if (category) {
-      setValue("type", { label: "", value: "" });
+      setValue("type", "");
     }
   }, [category, setValue]);
 
@@ -192,7 +172,9 @@ const CreateResource = () => {
 
   const handleCreateResource = async (data: FormValues) => {
     // get links and join by comma
-    const links = data?.links.map((link) => Object.values(link).join(","));
+    const filtered = data?.links?.filter((item) => item?.link);
+    const links = filtered?.map((link) => Object.values(link).join(","));
+    const linksWithComma = links?.join(",");
 
     const formData = new FormData();
     formData.append("name", data?.name);
@@ -203,10 +185,11 @@ const CreateResource = () => {
     formData.append("instruction", data?.instruction);
 
     !useLink &&
+      data?.files &&
       Array.from(data?.files).forEach((file) =>
         formData.append("files", file, file?.name)
       );
-    useLink && formData.append("links", links.join(","));
+    useLink && formData.append("links", `${linksWithComma}`);
     formData.append("productId", `${productId}`);
 
     const res = await axiosInstance.post("/resource", formData);
@@ -222,7 +205,8 @@ const CreateResource = () => {
   const onSubmit = (data: FormValues) => {
     create.mutate(data, {
       onSuccess: (data) => {
-        router.back();
+        // router.back();
+        console.log(data);
       },
       onError: (error) => console.error(error),
     });
@@ -416,9 +400,9 @@ const CreateResource = () => {
                 {useLink && (
                   <>
                     <div className="space-y-2">
-                      {fields.map((field, index) => (
+                      {linkInputs.map((field, index) => (
                         <div
-                          key={field.id}
+                          key={index}
                           className="flex gap-4 items-center justify-between"
                         >
                           <label className="text-right w-[200px] text-nowrap">

@@ -40,14 +40,15 @@ const InputSelect2 = ({
             )}
             placeholder={placeholder}
             options={options}
-            // value={
-            //   options?.find((option: any) => option.value === field.value) ||
-            //   null
-            // }
             onChange={(selectedOption: any) => {
-              //   field.onChange(selectedOption?.value);
               setValue(name, selectedOption, { shouldValidate: true });
             }}
+            // value={field.value}
+            // value={options?.find(
+            //   (option: any) =>
+            //     option.value === field.value?.value ||
+            //     option.value === field.value
+            // )}
           />
         )}
       />
