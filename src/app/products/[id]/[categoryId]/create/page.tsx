@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Info, List, PlusCircle } from "@phosphor-icons/react";
+import React, { useEffect, useRef, useState } from "react";
+import { Info, List, PlusCircle, X } from "@phosphor-icons/react";
 import Sidebar from "@/components/Sidebar";
 import Input from "@/components/Input";
 import { z } from "zod";
@@ -46,10 +46,17 @@ const ResourceSchema = z.object({
   files: z
     .any()
     .refine(
-      (files) =>
-        Array.from(files).every((file) => file?.size <= 10 * 1024 * 1024),
-      "File must be under 10MB."
-    ),
+      (files) => {
+        if (!files || files.length === 0) return true;
+        return Array.from(files).every(
+          (file: any) => file.size < 10 * 1024 * 1024
+        );
+      },
+      {
+        message: "Each file must be under 10MB.",
+      }
+    )
+    .optional(),
   links: z
     .array(
       z.object({
@@ -85,8 +92,13 @@ const CreateResource = () => {
     setLinkInputs([...linkInputs, { link: "" }]);
   };
 
+  // files
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const {
     register,
+    trigger,
     watch,
     setValue,
     getValues,
@@ -95,14 +107,22 @@ const CreateResource = () => {
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(ResourceSchema) });
 
-  console.log(errors);
-
   const category = watch("category");
+
   useEffect(() => {
+    if (selectedFiles) {
+      setValue("files", selectedFiles, { shouldValidate: true });
+    }
     if (category) {
       setValue("type", "");
     }
   }, [category, setValue]);
+
+  useEffect(() => {
+    if (selectedFiles) {
+      setValue("files", selectedFiles, { shouldValidate: true });
+    }
+  }, [selectedFiles]);
 
   const { data: resourceCategories } = useQuery({
     queryKey: ["categories"],
@@ -110,7 +130,6 @@ const CreateResource = () => {
       const res: AxiosResponse<Categories[]> = await axiosInstance.get(
         "/resource-category"
       );
-
       return res.data;
     },
     refetchOnWindowFocus: false,
@@ -186,7 +205,7 @@ const CreateResource = () => {
 
     !useLink &&
       data?.files &&
-      Array.from(data?.files).forEach((file) =>
+      Array.from(data?.files).forEach((file: any) =>
         formData.append("files", file, file?.name)
       );
     useLink && formData.append("links", `${linksWithComma}`);
@@ -205,11 +224,35 @@ const CreateResource = () => {
   const onSubmit = (data: FormValues) => {
     create.mutate(data, {
       onSuccess: (data) => {
-        // router.back();
-        console.log(data);
+        router.back();
+        // console.log(data);
       },
       onError: (error) => console.error(error),
     });
+  };
+
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const newFiles = Array.from(event.target.files);
+      setSelectedFiles((prevFiles) => [...prevFiles, ...newFiles]);
+      // Trigger validation if needed
+      await trigger("files");
+    }
+  };
+
+  const handleFileRemove = (fileName: string) => {
+    setSelectedFiles((prevFiles) =>
+      prevFiles.filter((file) => file.name !== fileName)
+    );
+  };
+
+  const triggerFileSelect = () => {
+    if (fileInputRef.current) {
+      // console.log(fileInputRef);
+      fileInputRef.current.click();
+    }
   };
 
   return (
@@ -364,8 +407,8 @@ const CreateResource = () => {
                   <label className="text-right w-[200px] text-nowrap">
                     Upload Files
                   </label>
-                  <div className="w-full">
-                    <InputFile
+                  <div className="max-w-[355px] w-full">
+                    {/* <InputFile
                       register={register}
                       errors={errors}
                       name="files"
@@ -376,7 +419,73 @@ const CreateResource = () => {
                       )}
                       disabled={useLink}
                       multiple={true}
+                    /> */}
+
+                    <input
+                      // {...register("files")}
+                      type="file"
+                      multiple
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      className="hidden"
                     />
+                    <div
+                      // size={"small"}
+                      // type="button"
+                      onClick={
+                        selectedFiles.length === 0
+                          ? triggerFileSelect
+                          : undefined
+                      }
+                      className={cn(
+                        "text-black font-normal text-left",
+                        "file:border-none file:bg-white bg-white text-sm outline-none rounded-md px-3 w-full py-2 border truncate",
+                        {
+                          "border-red-500": errors.files,
+                          "opacity-50 select-none pointer-events-none cursor-not-allowed":
+                            useLink,
+                        }
+                      )}
+                    >
+                      <span className="flex items-center flex-wrap gap-3">
+                        {selectedFiles.length > 0 && (
+                          <button
+                            type="button"
+                            className="border px-2 py-1 rounded-md"
+                            onClick={
+                              selectedFiles.length > 0
+                                ? triggerFileSelect
+                                : undefined
+                            }
+                          >
+                            Choose File
+                          </button>
+                        )}
+                        {selectedFiles.length > 0 ? (
+                          selectedFiles.map((file, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2"
+                            >
+                              <p className="truncate">{file.name}</p>
+                              <button
+                                type="button"
+                                onClick={() => handleFileRemove(file.name)}
+                                className="text-red-500"
+                              >
+                                <X weight="bold" />
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <span>
+                            <button type="button">Choose File</button> No file
+                            chosen
+                          </span>
+                        )}
+                      </span>
+                    </div>
+
                     <p className="text-slate-400 text-xs">
                       All suported files can be uploaded within 10MB.
                     </p>
