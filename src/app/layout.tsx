@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
 import "./globals.css";
 import QueryClientWrapperProvider from "@/providers/QueryClientWrapperProvider";
-// import Navbar from "@/components/Navbar";
+import { headers } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +24,7 @@ export default function RootLayout({
         <QueryClientWrapperProvider>
           <div className="h-full flex">
             <Sidebar />
-            <div className="lg:ml-64 flex-1 overflow-y-auto">{children}</div>
+            <div className={`md:ml-64 flex-1 overflow-y-auto`}>{children}</div>
           </div>
         </QueryClientWrapperProvider>
       </body>

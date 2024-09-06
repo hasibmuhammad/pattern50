@@ -44,11 +44,14 @@ const Sidebar = ({ isOpen, handleSidebarVisibility }: Props) => {
     if (accessToken && refreshToken) {
       localStorage.removeItem("access-token");
       localStorage.removeItem("refresh-token");
+      localStorage.removeItem("roleType");
       router.push("/login");
     }
   };
 
   const isActive = (route: string) => pathname.startsWith(route);
+
+  if (pathname === "/login") return;
 
   return (
     <aside

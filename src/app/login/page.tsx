@@ -58,10 +58,11 @@ export default function Login() {
   const onSubmit: SubmitHandler<FormField> = (data) => {
     login.mutate(data, {
       onSuccess: (data) => {
-        if (data?.auth?.accessToken) {
+        if (data?.auth?.accessToken && data?.user?.roleType) {
+          localStorage.setItem("roleType", data?.user?.roleType);
           localStorage.setItem("access-token", data?.auth?.accessToken);
           localStorage.setItem("refresh-token", data?.auth?.refreshToken);
-          router.replace("/dashboard");
+          router.replace("/overview");
         }
       },
       onError: (error) => {
@@ -71,80 +72,84 @@ export default function Login() {
   };
 
   return (
-    <main className="w-[70vw] h-[80vh] flex items-center justify-center">
-      <div>
-        <div className="flex items-center justify-center">
-          <Image src={Logo} alt="Logo" />
-        </div>
-        <div className="mt-10 bg-gray-50 w-full md:w-[500px] h-[450px] border-t-4 border-blue-500 p-10">
-          <h2 className="font-bold text-2xl">Login</h2>
-          <p className="text-gray-400 font-bold">Continue with pattern50</p>
+    <main className="max-w-md mx-auto px-4 md:px-0">
+      <div className="w-full flex items-center min-h-screen">
+        <div className="w-full">
+          <div className="flex items-center justify-center">
+            <Image src={Logo} alt="Logo" />
+          </div>
+          <div className="mt-10 bg-gray-50 border-t-4 border-blue-500 p-10">
+            <h2 className="font-bold text-2xl">Login</h2>
+            <p className="text-gray-400 font-bold">Continue with pattern50</p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
-            <div className="space-y-4">
-              <div>
-                <label className="font-semibold">Email Address:</label>
-                <br />
-                <input
-                  {...register("email", {
-                    required: true,
-                    pattern: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
-                  })}
-                  className="p-2 border-2 outline-none rounded-md w-full"
-                  type="email"
-                  placeholder="Email Address"
-                />
-                {errors.email && errors.email.type === "required" && (
-                  <p className="text-red-400 flex items-center gap-1">
-                    <FaTriangleExclamation /> Email address is required!
-                  </p>
-                )}
-                {errors.email && (
-                  <p className="text-red-400 flex items-center gap-1">
-                    <FaTriangleExclamation /> Please enter a valid email
-                    address!
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="font-semibold">Password:</label>
-                <div className="relative">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
+              <div className="space-y-4">
+                <div>
+                  <label className="font-semibold">Email Address:</label>
+                  <br />
                   <input
-                    {...register("password", {
-                      required: "Password is required!",
+                    {...register("email", {
+                      required: true,
+                      pattern: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
                     })}
                     className="p-2 border-2 outline-none rounded-md w-full"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    type="email"
+                    placeholder="Email Address"
                   />
-                  {!showPassword ? (
-                    <Eye
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-3 cursor-pointer right-1"
-                    />
-                  ) : (
-                    <EyeSlash
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute top-3 cursor-pointer right-1"
-                    />
+                  {errors.email && errors.email.type === "required" && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <FaTriangleExclamation /> Email address is required!
+                    </p>
+                  )}
+                  {errors.email && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <FaTriangleExclamation /> Please enter a valid email
+                      address!
+                    </p>
                   )}
                 </div>
-                {errors.password && (
-                  <p className="text-red-400 flex items-center gap-1">
-                    {errors.password.message}
+                <div>
+                  <label className="font-semibold">Password:</label>
+                  <div className="relative">
+                    <input
+                      {...register("password", {
+                        required: "Password is required!",
+                      })}
+                      className="p-2 border-2 outline-none rounded-md w-full"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                    />
+                    {!showPassword ? (
+                      <Eye
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute top-3 cursor-pointer right-1"
+                      />
+                    ) : (
+                      <EyeSlash
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute top-3 cursor-pointer right-1"
+                      />
+                    )}
+                  </div>
+                  {errors.password && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      {errors.password.message}
+                    </p>
+                  )}
+                  <br />
+                  <p className="text-right mt-1 font-medium">
+                    Forgot Password?
                   </p>
-                )}
-                <br />
-                <p className="text-right mt-1 font-medium">Forgot Password?</p>
+                </div>
               </div>
-            </div>
-            <button
-              type="submit"
-              className="mt-14 bg-blue-500 text-white w-full py-2 rounded-lg"
-            >
-              {login.isPending ? <Loader /> : "Login"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="mt-14 bg-blue-500 text-white w-full py-2 rounded-lg"
+              >
+                {login.isPending ? <Loader pageName="login" /> : "Login"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </main>

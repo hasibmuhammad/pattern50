@@ -372,3 +372,11 @@ export type ResourceTypes = {
   description: string;
   category: string;
 };
+
+export type DashboardStatistics = {
+  year: number;
+  month: number;
+  totalBillingRate: number;
+  totalInternalRate: number;
+  totalDiscount: number;
+};

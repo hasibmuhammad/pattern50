@@ -51,6 +51,7 @@ axiosInstance.interceptors.response.use(
     if (accessToken && !refreshToken) {
       localStorage.removeItem("access-token");
       localStorage.removeItem("refresh-token");
+      localStorage.removeItem("roleType");
 
       window.location.href = "/login";
       return Promise.reject(error);
